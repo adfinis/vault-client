@@ -10,18 +10,18 @@ import (
 )
 
 type EditCommand struct {
-	Ui cli.Ui
+	Ui   cli.Ui
+	Path string
 }
 
-func (c *EditCommand) Run(_ []string) int {
-	c.Ui.Output("Secret added")
+func (c *EditCommand) Run(args []string) int {
 
-	secret, err := vc.Logical().Read("secret/secret0")
+	c.Path = args[0]
+
+	_, err := vc.Logical().Read(c.Path)
 	if err != nil {
 		return 1
 	}
-
-	fmt.Printf("%T", secret)
 
 	_, err = EditFile()
 	if err != nil {
@@ -32,11 +32,11 @@ func (c *EditCommand) Run(_ []string) int {
 }
 
 func (c *EditCommand) Help() string {
-	return "Add secret (detailed)"
+	return "Edit a secret"
 }
 
 func (c *EditCommand) Synopsis() string {
-	return "Add secret"
+	return "Edit a secret"
 }
 
 func EditFile() ([]byte, error) {

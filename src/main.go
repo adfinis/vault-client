@@ -38,7 +38,9 @@ func InitializeClient(cfg Config) error {
 		Address: fmt.Sprintf("http://%v:%v", cfg.Host, cfg.Port),
 	}
 
-	vc, err := vault.NewClient(&vcfg)
+	var err error
+
+	vc, err = vault.NewClient(&vcfg)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
