@@ -80,6 +80,15 @@ func LoadCli() *cli.CLI {
 				},
 			}, nil
 		},
+		"rm": func() (cli.Command, error) {
+			return &DeleteCommand{
+				Ui: &cli.ColoredUi{
+					Ui:          ui,
+					OutputColor: cli.UiColorGreen,
+				},
+			}, nil
+		},
+
 	}
 
 	return c
