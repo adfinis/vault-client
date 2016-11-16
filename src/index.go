@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"strings"
+	"io/ioutil"
 
 	"github.com/mitchellh/cli"
 )
@@ -14,10 +16,20 @@ func (c *IndexCommand) Run(_ []string) int {
 
 	c.Ui.Output("Indexing all available paths in vault")
 
-	_, err := BuildIndex()
-	if err != nil {
+	index, err := BuildIndex()
+ 	if err != nil {
 		return 1
 	}
+
+	r := strings.NewReader(strings.Join(index[:], "\n"))
+	
+	data, err := ioutil.ReadAll(r)
+ 	if err != nil {
+		return 1
+	}
+
+	
+	ioutil.WriteFile(cfg.IndexFile, data, 0644)
 
 	return 0
 }
@@ -61,12 +73,17 @@ func BuildIndex() ([]string, error) {
 	var index []string
 
 	for _, backend := range backends {
-		_, err := WalkPath(backend)
+		paths, err := WalkPath(backend)
 		if err != nil {
 			return nil, err
 		}
+		index = append(index, paths...)
 	}
-	// TODO: append paths to index
+
+	for _, v := range index {
+		fmt.Println(v)
+	}
+
 	return index, nil
 }
 
@@ -80,14 +97,28 @@ func WalkPath(startpath string) ([]string, error) {
 		return nil, err
 	}
 
-	// Check whether secret is empty or not
-	if secret != nil {
-		for _, path := range secret.Data {
-			//TODO: Recursively call WalkPath until the entire tree is discovered
-			fmt.Println(path)
+	for _, path := range secret.Data {
+
+		// expecting "[secret0 secret1 secret2...]"
+		secrets := strings.Split(strings.Trim(fmt.Sprint(path), "[]"), " ")
+
+		for _, v := range secrets {
+
+			path_to_secret := fmt.Sprint(startpath, v)
+
+			if !strings.HasSuffix(v, "/") {
+				paths = append(paths, path_to_secret)
+			} else {
+
+				child_paths, err := WalkPath(path_to_secret)
+				if err != nil {
+					return nil, err
+				}
+				paths = append(paths, child_paths...)
+
+			}
 		}
 	}
-	//TODO: Return a slice of all paths
-	return append(paths, ""), nil
 
+	return paths, nil
 }

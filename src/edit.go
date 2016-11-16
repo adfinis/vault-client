@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -23,7 +22,7 @@ func (c *EditCommand) Run(args []string) int {
 		return 1
 	}
 
-	_, err = EditFile()
+	_, err = EditFile([]byte(""))
 	if err != nil {
 		return 1
 	}
@@ -39,7 +38,7 @@ func (c *EditCommand) Synopsis() string {
 	return "Edit a secret"
 }
 
-func EditFile() ([]byte, error) {
+func EditFile(data []byte) ([]byte, error) {
 
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
@@ -52,8 +51,12 @@ func EditFile() ([]byte, error) {
 	}
 
 	defer os.Remove(f.Name())
+	
+	_, err = f.Write(data)
+	if err != nil {
+		return nil, err
+	}
 
-	fmt.Println(f.Name())
 
 	cmd := exec.Command(editor, f.Name())
 	cmd.Stdin = os.Stdin
@@ -63,7 +66,7 @@ func EditFile() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	content, err := ioutil.ReadFile(f.Name())
 	if err != nil {
 		return nil, err

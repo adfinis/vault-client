@@ -9,10 +9,11 @@ import (
 )
 
 var vc *vault.Client
+var cfg Config
 
 func main() {
 
-	cfg, err := LoadConfig()
+	err := LoadConfig()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}

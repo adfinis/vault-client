@@ -12,26 +12,25 @@ type Config struct {
 	Port     int    `yaml:"port"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
+	IndexFile string `yaml:"index_file"`
 }
 
-func LoadConfig() (Config, error) {
-
-	cfg := Config{}
+func LoadConfig() (error) {
 
 	usr, err := user.Current()
 	if err != nil {
-		return cfg, err
+		return err
 	}
 
 	file, err := ioutil.ReadFile(usr.HomeDir + "/.vaultrc")
 	if err != nil {
-		return cfg, err
+		return err
 	}
 
 	err = yaml.Unmarshal(file, &cfg)
 	if err != nil {
-		return cfg, err
+		return err
 	}
 
-	return cfg, nil
+	return nil
 }
