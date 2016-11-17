@@ -104,8 +104,14 @@ func LoadCli() *cli.CLI {
 				},
 			}, nil
 		},
-		// TODO: cp
-		// TODO: ls
+		"cp": func() (cli.Command, error) {
+			return &CopyCommand{
+				Ui: &cli.ColoredUi{
+					Ui:          ui,
+					OutputColor: cli.UiColorGreen,
+				},
+			}, nil
+		},
 	}
 
 	return c
