@@ -88,7 +88,14 @@ func LoadCli() *cli.CLI {
 				},
 			}, nil
 		},
-
+		"insert": func() (cli.Command, error) {
+			return &InsertCommand{
+				Ui: &cli.ColoredUi{
+					Ui:          ui,
+					OutputColor: cli.UiColorGreen,
+				},
+			}, nil
+		},
 	}
 
 	return c
