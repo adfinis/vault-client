@@ -96,6 +96,16 @@ func LoadCli() *cli.CLI {
 				},
 			}, nil
 		},
+		"mv": func() (cli.Command, error) {
+			return &MoveCommand{
+				Ui: &cli.ColoredUi{
+					Ui:          ui,
+					OutputColor: cli.UiColorGreen,
+				},
+			}, nil
+		},
+		// TODO: cp
+		// TODO: ls
 	}
 
 	return c
