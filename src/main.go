@@ -60,7 +60,7 @@ func LoadCli() *cli.CLI {
 		ErrorWriter: os.Stderr,
 	}
 
-	c := cli.NewCLI("vault", "0.0.1")
+	c := cli.NewCLI("vc", "0.0.1")
 	c.Args = os.Args[1:]
 
 	c.Commands = map[string]cli.CommandFactory{
@@ -95,6 +95,7 @@ func LoadCli() *cli.CLI {
 					OutputColor: cli.UiColorGreen,
 				},
 			}, nil
+
 		},
 		"mv": func() (cli.Command, error) {
 			return &MoveCommand{
@@ -106,6 +107,14 @@ func LoadCli() *cli.CLI {
 		},
 		"cp": func() (cli.Command, error) {
 			return &CopyCommand{
+				Ui: &cli.ColoredUi{
+					Ui:          ui,
+					OutputColor: cli.UiColorGreen,
+				},
+			}, nil
+		},
+		"show": func() (cli.Command, error) {
+			return &ShowCommand{
 				Ui: &cli.ColoredUi{
 					Ui:          ui,
 					OutputColor: cli.UiColorGreen,
