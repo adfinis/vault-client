@@ -121,6 +121,14 @@ func LoadCli() *cli.CLI {
 				},
 			}, nil
 		},
+		"list": func() (cli.Command, error) {
+			return &ListCommand{
+				Ui: &cli.ColoredUi{
+					Ui:          ui,
+					OutputColor: cli.UiColorGreen,
+				},
+			}, nil
+		},
 	}
 
 	return c
