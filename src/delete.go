@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/mitchellh/cli"
 )
 
@@ -10,8 +11,36 @@ type DeleteCommand struct {
 
 func (c *DeleteCommand) Run(args []string) int {
 
-	_, err := vc.Logical().Delete(args[0])
+	switch {
+	case len(args) > 1:
+		c.Ui.Output("The delete command expects at most one argument")
+		return 1
+	case len(args) == 0:
+		c.Ui.Output("The delete command expects an argument")
+		return 1
+	}
+
+	if len(args) > 1 {
+		c.Ui.Output("The delete command expects at most one argument")
+		return 1
+	}
+
+	path := args[0]
+
+	secret, err := vc.Logical().Read(path)
 	if err != nil {
+		fmt.Println(err)
+		return 1
+	}
+
+	if secret == nil {
+		c.Ui.Output("Secret does not exist")
+		return 1
+	}
+
+	_, err = vc.Logical().Delete(path)
+	if err != nil {
+		fmt.Println(err)
 		return 1
 	}
 

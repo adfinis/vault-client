@@ -18,6 +18,11 @@ func (c *CopyCommand) Run(args []string) int {
 		return 1
 	}
 
+	if secret == nil {
+		fmt.Println("Source secret doesn't exist")
+		return 1
+	}
+
 	_, err = vc.Logical().Write(args[1], secret.Data)
 	if err != nil {
 		fmt.Println("Unable to write destination secret")
