@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"io/ioutil"
+	"strings"
 
 	"github.com/mitchellh/cli"
 )
@@ -17,18 +17,17 @@ func (c *IndexCommand) Run(_ []string) int {
 	c.Ui.Output("Indexing all available paths in vault")
 
 	index, err := BuildIndex()
- 	if err != nil {
+	if err != nil {
 		return 1
 	}
 
 	r := strings.NewReader(strings.Join(index[:], "\n"))
-	
+
 	data, err := ioutil.ReadAll(r)
- 	if err != nil {
+	if err != nil {
 		return 1
 	}
 
-	
 	ioutil.WriteFile(cfg.IndexFile, data, 0644)
 
 	return 0

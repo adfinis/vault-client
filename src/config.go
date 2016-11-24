@@ -8,14 +8,14 @@ import (
 )
 
 type Config struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
+	Host      string `yaml:"host"`
+	Port      int    `yaml:"port"`
+	User      string `yaml:"user"`
+	Password  string `yaml:"password"`
 	IndexFile string `yaml:"index_file"`
 }
 
-func LoadConfig() (error) {
+func LoadConfig() error {
 
 	usr, err := user.Current()
 	if err != nil {
