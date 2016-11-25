@@ -13,15 +13,15 @@ func (c *DeleteCommand) Run(args []string) int {
 
 	switch {
 	case len(args) > 1:
-		c.Ui.Output("The delete command expects at most one argument")
+		c.Ui.Error("The rm command expects at most one argument")
 		return 1
 	case len(args) == 0:
-		c.Ui.Output("The delete command expects an argument")
+		c.Ui.Error("The rm command expects an argument")
 		return 1
 	}
 
 	if len(args) > 1 {
-		c.Ui.Output("The delete command expects at most one argument")
+		c.Ui.Error("The rm command expects at most one argument")
 		return 1
 	}
 

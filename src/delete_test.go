@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"fmt"
 	"github.com/mitchellh/cli"
 )
 
@@ -16,14 +17,14 @@ func TestDelete_tooManyArgs(t *testing.T) {
 
 	args := []string{
 		"secret/doesntexist",
-		"secret/tomucharguments",
+		"secret/toomucharguments",
 	}
 
 	if rc := c.Run(args); rc != 1 {
-		t.Fatalf("Wrong exit code. erros: \n%s", ui.ErrorWriter.String())
+		t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
 	}
 
-	expected := "The delete command expsetcs at most one argument."
+	expected := "The rm command expects at most one argument"
 	if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
 		t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
 	}
