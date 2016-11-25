@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	"fmt"
 	"github.com/mitchellh/cli"
 )
 
