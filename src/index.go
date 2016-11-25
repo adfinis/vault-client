@@ -53,7 +53,6 @@ func GetGenericBackends() ([]string, error) {
 
 	for x, i := range mounts {
 		if i.Type == "generic" {
-			fmt.Println(x)
 			backends = append(backends, x)
 		}
 	}

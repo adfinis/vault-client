@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/mitchellh/cli"
 )
@@ -13,8 +12,16 @@ type ShowCommand struct {
 
 func (c *ShowCommand) Run(args []string) int {
 
-	// use the last argument as path
-	path := strings.Join(args[len(args)-1:], "")
+	switch {
+	case len(args) > 1:
+		c.Ui.Output("The show command expects at most one argument")
+		return 1
+	case len(args) == 0:
+		c.Ui.Output("The show command expects an argument")
+		return 1
+	}
+
+	path := args[0]
 
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
@@ -34,9 +41,9 @@ func (c *ShowCommand) Run(args []string) int {
 }
 
 func (c *ShowCommand) Help() string {
-	return "Copy an existing secret to another location"
+	return "Show an existing secret"
 }
 
 func (c *ShowCommand) Synopsis() string {
-	return "Copy an existing secret to another location"
+	return "Show an existing secret"
 }
