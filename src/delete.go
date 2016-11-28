@@ -20,16 +20,11 @@ func (c *DeleteCommand) Run(args []string) int {
 		return 1
 	}
 
-	if len(args) > 1 {
-		c.Ui.Error("The rm command expects at most one argument")
-		return 1
-	}
-
 	path := args[0]
 
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
-		fmt.Println(err)
+		c.Ui.Error(fmt.Sprintf("Unable to receive the secret: %q", err))
 		return 1
 	}
 
