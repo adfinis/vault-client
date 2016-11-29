@@ -29,7 +29,7 @@ func (c *DeleteCommand) Run(args []string) int {
 	}
 
 	if secret == nil {
-		c.Ui.Output("Secret does not exist")
+		c.Ui.Error("Secret does not exist")
 		return 1
 	}
 
