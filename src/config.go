@@ -17,6 +17,13 @@ type Config struct {
 
 func LoadConfig() error {
 
+	cfg = Config{
+		Host:      "127.0.0.1",
+		Port:      8200,
+		Password:  "password",
+		IndexFile: "/dev/shm/vaultindex",
+	}
+
 	usr, err := user.Current()
 	if err != nil {
 		return err
