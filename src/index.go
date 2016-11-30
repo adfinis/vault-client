@@ -14,10 +14,9 @@ type IndexCommand struct {
 
 func (c *IndexCommand) Run(_ []string) int {
 
-	c.Ui.Output("Indexing all available paths in vault")
-
 	index, err := BuildIndex()
 	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Unable to index vault: %q", err))
 		return 1
 	}
 
@@ -25,6 +24,7 @@ func (c *IndexCommand) Run(_ []string) int {
 
 	data, err := ioutil.ReadAll(r)
 	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Unable to parse index: %q", err))
 		return 1
 	}
 
@@ -85,14 +85,18 @@ func BuildIndex() ([]string, error) {
 	return index, nil
 }
 
-// Recursively walks an accessable path
-func WalkPath(startpath string) ([]string, error) {
+// Recursively walks an accessable backend
+func WalkPath(backend string) ([]string, error) {
 
 	var paths []string
 
-	secret, err := vc.Logical().List(startpath)
+	secret, err := vc.Logical().List(backend)
 	if err != nil {
 		return nil, err
+	}
+
+	if secret == nil {
+		return nil, fmt.Errorf("Backend %q holds no secrets", backend)
 	}
 
 	for _, path := range secret.Data {
@@ -102,7 +106,7 @@ func WalkPath(startpath string) ([]string, error) {
 
 		for _, v := range secrets {
 
-			path_to_secret := fmt.Sprint(startpath, v)
+			path_to_secret := fmt.Sprint(backend, v)
 
 			if !strings.HasSuffix(v, "/") {
 				paths = append(paths, path_to_secret)

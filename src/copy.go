@@ -12,20 +12,25 @@ type CopyCommand struct {
 
 func (c *CopyCommand) Run(args []string) int {
 
+	if len(args) != 2 {
+		c.Ui.Error("The copy command expects a source and a destination path")
+		return 1
+	}
+
 	secret, err := vc.Logical().Read(args[0])
 	if err != nil {
-		fmt.Println("Unable to find source secret")
+		c.Ui.Error(fmt.Sprintf("Unable to find source secret: %q", err))
 		return 1
 	}
 
 	if secret == nil {
-		fmt.Println("Source secret doesn't exist")
+		c.Ui.Error("Source secret doesn't exist")
 		return 1
 	}
 
 	_, err = vc.Logical().Write(args[1], secret.Data)
 	if err != nil {
-		fmt.Println("Unable to write destination secret")
+		c.Ui.Error(fmt.Sprintf("Unable to write destination secret: %q", err))
 		return 1
 	}
 

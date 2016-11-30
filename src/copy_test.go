@@ -9,7 +9,7 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-func TestInsert(t *testing.T) {
+func TestCopy(t *testing.T) {
 
 	err := LoadConfig()
 	if err != nil {
@@ -22,7 +22,7 @@ func TestInsert(t *testing.T) {
 	}
 
 	ui := new(cli.MockUi)
-	c := &InsertCommand{Ui: ui}
+	c := &CopyCommand{Ui: ui}
 
 	t.Run("TooFewArgs", func(t *testing.T) {
 
@@ -34,34 +34,43 @@ func TestInsert(t *testing.T) {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
 		}
 
-		expected := "The insert command expects at least a path and a k/v pair (key=value)"
+		expected := "The copy command expects a source and a destination path"
 		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
 			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
 		}
 	})
 
-	t.Run("InsertInvalidKvArgs", func(t *testing.T) {
+	t.Run("CopyNonexistentSourceSecret", func(t *testing.T) {
 
 		args := []string{
-			"secret/insertedsecret",
-			"invalidkey: invalidvalue",
+			"secret/nonexistensecret",
+			"secret/destinationsecret",
 		}
 
 		if rc := c.Run(args); rc != 1 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
 		}
 
-		expected := "Invalid key/value arguments: \"invalidkey: invalidvalue\""
+		expected := "Source secret doesn't exist"
 		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
 			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
 		}
 	})
 
-	t.Run("InsertValidKvArgs", func(t *testing.T) {
+	t.Run("CopyExistentSourceSecret", func(t *testing.T) {
+
+		// Create test secret
+		data := make(map[string]interface{})
+		data["key"] = "value"
+
+		_, err = vc.Logical().Write("secret/existent", data)
+		if err != nil {
+			t.Fatalf("Unable to write test secret: %q", err)
+		}
 
 		args := []string{
-			"secret/insertedsecret",
-			"invalidkey=invalidvalue",
+			"secret/existent",
+			"secret/destinationsecret",
 		}
 
 		if rc := c.Run(args); rc != 0 {
@@ -74,7 +83,7 @@ func TestInsert(t *testing.T) {
 		}
 	})
 
-	_, err = vc.Logical().Delete("secret/insertedsecret")
+	_, err = vc.Logical().Delete("secret/destinationsecret")
 	if err != nil {
 		t.Fatalf("Unable to clean up test secret: %q", err)
 	}
