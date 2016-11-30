@@ -35,7 +35,7 @@ func (c *DeleteCommand) Run(args []string) int {
 
 	_, err = vc.Logical().Delete(path)
 	if err != nil {
-		fmt.Println(err)
+		c.Ui.Error(fmt.Sprintf("Unable to delete secret", err))
 		return 1
 	}
 

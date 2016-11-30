@@ -9,30 +9,7 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-func TestDelete_TooManyArgs(t *testing.T) {
-
-	ui := new(cli.MockUi)
-	c := &DeleteCommand{
-		Ui: ui,
-	}
-
-	args := []string{
-		"secret/doesntexist",
-		"secret/toomucharguments",
-	}
-
-	if rc := c.Run(args); rc != 1 {
-		t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
-	}
-
-	expected := "The rm command expects at most one argument"
-	if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
-		t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
-	}
-
-}
-
-func TestDelete_NonexistentSecret(t *testing.T) {
+func TestDelete(t *testing.T) {
 
 	err := LoadConfig()
 	if err != nil {
@@ -47,15 +24,61 @@ func TestDelete_NonexistentSecret(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := &DeleteCommand{Ui: ui}
 
-	args := []string{"secret/doesntexist"}
+	t.Run("TooManyArgs", func(t *testing.T) {
 
-	if rc := c.Run(args); rc != 1 {
-		t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
-	}
+		args := []string{
+			"secret/doesntexist",
+			"secret/toomucharguments",
+		}
 
-	expected := "Secret does not exist"
-	if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
-		t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
-	}
+		if rc := c.Run(args); rc != 1 {
+			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
+		}
 
+		expected := "The rm command expects at most one argument"
+		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
+			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
+		}
+	})
+
+	t.Run("NonexistentSecret", func(t *testing.T) {
+
+		args := []string{"secret/doesntexist"}
+
+		if rc := c.Run(args); rc != 1 {
+			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
+		}
+
+		expected := "Secret does not exist"
+		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
+			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
+		}
+	})
+
+	t.Run("ExistentSecret", func(t *testing.T) {
+
+		// Create test secret
+		data := make(map[string]interface{})
+		data["key"] = "value"
+
+		_, err = vc.Logical().Write("secret/existent", data)
+		if err != nil {
+			t.Fatalf("Unable to write test secret: %q", err)
+		}
+
+		ui := new(cli.MockUi)
+		c := &DeleteCommand{Ui: ui}
+
+		args := []string{"secret/existent"}
+
+		if rc := c.Run(args); rc != 0 {
+			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
+		}
+
+		expected := ""
+		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
+			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
+		}
+
+	})
 }

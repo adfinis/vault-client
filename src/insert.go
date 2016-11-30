@@ -13,13 +13,18 @@ type InsertCommand struct {
 
 func (c *InsertCommand) Run(args []string) int {
 
+	if len(args) < 2 {
+		c.Ui.Error("The insert command expects at least a path and a k/v pair (key=value)")
+		return 1
+	}
+
 	path := args[0]
 	data := make(map[string]interface{})
 
 	for _, v := range args[1:] {
 		kvpair := strings.Split(v, "=")
 		if len(kvpair) < 2 || len(kvpair) > 2 {
-			fmt.Println("Invalid key/value arguments")
+			c.Ui.Error(fmt.Sprintf("Invalid key/value arguments: %q", v))
 			return 1
 		}
 		data[kvpair[0]] = kvpair[1]
@@ -27,7 +32,7 @@ func (c *InsertCommand) Run(args []string) int {
 
 	_, err := vc.Logical().Write(path, data)
 	if err != nil {
-		fmt.Println("Unable to write secret")
+		c.Ui.Error(fmt.Sprintf("Unable to write secret: %q", err))
 		return 1
 	}
 
