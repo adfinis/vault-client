@@ -6,6 +6,9 @@ help:
 test-all: ## Runs all tests
 	go test src/*.go
 
+build: ## Compiles the program
+	go build -o vc src/*.go
+
 dependencies: ## install go dependencies
 	for dep in gopkg.in/yaml.v2 github.com/hashicorp/vault/api github.com/mitchellh/cli; do \
 		go get $$dep; \
