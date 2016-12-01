@@ -1,6 +1,5 @@
 #!/bin/bash
 
-VAULT_INDEX="/home/patrick/.cache/vaultindex"
-
-path=$(cat $VAULT_INDEX | dmenu)
-secretkey=$(vc show $path | awk '{ print $1 }' | dmenu)
+SECRET_PATH=$(vc index | dmenu)
+SECRET_KEY=$(vc show $SECRET_PATH | awk '{ print $1 }' | dmenu)
+echo $(vc show $SECRET_PATH | grep $SECRET_KEY | awk '{ print $3 }')

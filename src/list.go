@@ -47,7 +47,9 @@ func (c *ListCommand) Run(args []string) int {
 	}
 
 	for _, child := range childs {
-		c.Ui.Output(child)
+		// This prints ansi escape sequences
+		//c.Ui.Output(child)
+		fmt.Println(child)
 	}
 
 	return 0
@@ -77,6 +79,9 @@ func ListPath(path string) ([]string, error) {
 	for _, path := range secret.Data {
 
 		// expecting "[secret0 secret1 secret2...]"
+		//
+		// if the name both exists as directory and as file
+		// e.g. "/secret/" and "/secret" it will print an empty line
 		childs = strings.Split(strings.Trim(fmt.Sprint(path), "[]"), " ")
 	}
 
