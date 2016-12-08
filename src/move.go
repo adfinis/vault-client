@@ -12,9 +12,19 @@ type MoveCommand struct {
 
 func (c *MoveCommand) Run(args []string) int {
 
+	if len(args) != 2 {
+		c.Ui.Error("The move command expects a source and a destination path")
+		return 1
+	}
+
 	secret, err := vc.Logical().Read(args[0])
 	if err != nil {
 		fmt.Println("Unable to find source secret")
+		return 1
+	}
+
+	if secret == nil {
+		c.Ui.Error("Source secret doesn't exist")
 		return 1
 	}
 

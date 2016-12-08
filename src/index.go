@@ -41,6 +41,33 @@ func (c *IndexCommand) Synopsis() string {
 	return "Index all available paths of accessable generic backends"
 }
 
+// Build a list of all available paths
+func BuildIndex() ([]string, error) {
+
+	backends, err := GetGenericBackends()
+	if err != nil {
+		return nil, err
+	}
+
+	var index []string
+
+	for _, backend := range backends {
+		paths, err := WalkPath(backend)
+		if strings.Contains(fmt.Sprintf("%v", err), "holds no secrets") {
+			index = append(index, paths...)
+		} else if err != nil {
+			return nil, err
+		}
+		index = append(index, paths...)
+	}
+
+	for _, v := range index {
+		fmt.Println(v)
+	}
+
+	return index, nil
+}
+
 // Returns all accessable generic backends
 func GetGenericBackends() ([]string, error) {
 
@@ -58,31 +85,6 @@ func GetGenericBackends() ([]string, error) {
 	}
 
 	return backends, nil
-}
-
-// Build a list of all available paths
-func BuildIndex() ([]string, error) {
-
-	backends, err := GetGenericBackends()
-	if err != nil {
-		return nil, err
-	}
-
-	var index []string
-
-	for _, backend := range backends {
-		paths, err := WalkPath(backend)
-		if err != nil {
-			return nil, err
-		}
-		index = append(index, paths...)
-	}
-
-	for _, v := range index {
-		fmt.Println(v)
-	}
-
-	return index, nil
 }
 
 // Recursively walks an accessable backend

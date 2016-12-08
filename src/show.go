@@ -35,7 +35,7 @@ func (c *ShowCommand) Run(args []string) int {
 	}
 
 	for k, v := range secret.Data {
-		fmt.Printf("%v = %v\n", k, v)
+		fmt.Printf("%v: %v\n", k, v)
 	}
 	return 0
 }
