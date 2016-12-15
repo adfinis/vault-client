@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
@@ -13,77 +14,162 @@ type ListCommand struct {
 
 func (c *ListCommand) Run(args []string) int {
 
-	if len(args) > 1 {
-		c.Ui.Output("The list command expects at most one argument")
+	var recursiveFlag bool
+	var paths []string
+	var path string
+	var err error
+
+	flags := flag.NewFlagSet("list", flag.ContinueOnError)
+	flags.Usage = func() { c.Ui.Output(c.Help()) }
+
+	flags.BoolVar(&recursiveFlag, "r", false, "List secrets at path recursively")
+	if err := flags.Parse(args); err != nil {
+		c.Ui.Output(fmt.Sprintf("%v", err))
 		return 1
 	}
 
-	var path string
-	var childs []string
-	var err error
+	args = flags.Args()
 
-	// When no path is specified in the arguments, use ""
-	if len(args) == 0 {
+	// When no path is specified in the arguments, use "".
+	// Otherwise use the last argument as the path.
+	switch x := len(args); true {
+	case x > 1:
+		c.Ui.Output("The list command expects at most one argument")
+		return 1
+	case x == 0:
 		path = ""
-	} else {
-		path = args[0]
+	default:
+		path = strings.Trim(fmt.Sprint(args[:1]), "[]")
 	}
 
-	// Top level directories are mounts
-	if path == "/" || path == "" {
-		childs, err = GetGenericBackends()
+	if recursiveFlag {
+		paths, err = RecursivelyListSecrets(path)
 		if err != nil {
-			c.Ui.Output(fmt.Sprintf("Unable to get a list generic backends: %q", err))
+			c.Ui.Error(fmt.Sprintf("Unable to recursively list path: %q", err))
 			return 1
 		}
-
 	} else {
-		childs, err = ListPath(path)
+		paths, err = ListSecrets(path)
 		if err != nil {
-			c.Ui.Output(fmt.Sprintf("Unable to get a list of secrets: %q", err))
+			c.Ui.Error(fmt.Sprintf("Unable to list path: %q", err))
 			return 1
 		}
-
 	}
 
-	for _, child := range childs {
-		// This prints ansi escape sequences
-		//c.Ui.Output(child)
-		fmt.Println(child)
+	for _, path := range paths {
+		fmt.Println(path)
 	}
 
 	return 0
 }
 
 func (c *ListCommand) Help() string {
-	return "List all available secrets and subdirectory of path"
+	return `Usage: vc ls [options] path
+
+  This command lists all available secrets at a certain path.
+
+Options:
+
+  -r                             Recusively show all available secrets
+`
+
 }
 
 func (c *ListCommand) Synopsis() string {
-	return "List all available secrets and subdirectory of path"
+	return "List all secrets at path"
 }
 
-func ListPath(path string) ([]string, error) {
+// Build a list of all available paths
+func RecursivelyListSecrets(path string) ([]string, error) {
 
-	var childs []string
+	// Could be secrets or backends...
+	var items []string
 
-	secret, err := vc.Logical().List(path)
+	secrets, err := ListSecrets(path)
 	if err != nil {
 		return nil, err
 	}
 
-	if secret == nil {
+	// Return if path holds no secrets
+	if len(secrets) == 0 {
 		return nil, nil
 	}
 
-	for _, path := range secret.Data {
+	for _, secret := range secrets {
 
-		// expecting "[secret0 secret1 secret2...]"
-		//
-		// if the name both exists as directory and as file
-		// e.g. "/secret/" and "/secret" it will print an empty line
-		childs = strings.Split(strings.Trim(fmt.Sprint(path), "[]"), " ")
+		// Prefix secret with it's path
+		secret = fmt.Sprint(path, secret)
+
+		// Recurse if path is a directory
+		if strings.HasSuffix(secret, "/") {
+			childs, err := RecursivelyListSecrets(secret)
+			if err != nil {
+				return nil, err
+			}
+			items = append(items, childs...)
+		} else {
+			items = append(items, secret)
+		}
+
 	}
 
-	return childs, nil
+	return items, err
+
+}
+
+func ListSecrets(path string) ([]string, error) {
+
+	// Could be secrets or backends...
+	var items []string
+	var err error
+
+	// Vault can have multiple backends mounted at different paths (e.g "/customer1", "/customer2"...).
+	// `vc` only cares about generic backends.
+	if path == "/" || path == "" {
+
+		items, err = ListGenericBackends()
+		if err != nil {
+			return nil, err
+		}
+
+	} else {
+
+		secret, err := vc.Logical().List(path)
+		if err != nil {
+			return nil, err
+		}
+
+		if secret == nil {
+			return nil, nil
+		}
+
+		for _, path := range secret.Data {
+			// expecting "[secret0 secret1 secret2...]"
+			//
+			// if the name both exists as directory and as file
+			// e.g. "/secret/" and "/secret" it will print an empty line
+			items = strings.Split(strings.Trim(fmt.Sprint(path), "[]"), " ")
+		}
+	}
+
+	return items, nil
+}
+
+// Returns the paths to all accessable generic backends.
+func ListGenericBackends() ([]string, error) {
+
+	mounts, err := vc.Sys().ListMounts()
+	if err != nil {
+		return nil, err
+	}
+
+	var backends []string
+
+	for x, i := range mounts {
+		if i.Type == "generic" {
+			backends = append(backends, x)
+		}
+	}
+
+	return backends, nil
 }

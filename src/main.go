@@ -16,11 +16,13 @@ func main() {
 	err := LoadConfig()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
 	}
 
 	err = InitializeClient(cfg)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
 	}
 
 	c := LoadCli()
@@ -66,11 +68,6 @@ func LoadCli() *cli.CLI {
 	c.Commands = map[string]cli.CommandFactory{
 		"edit": func() (cli.Command, error) {
 			return &EditCommand{
-				Ui: &cli.ColoredUi{Ui: ui},
-			}, nil
-		},
-		"index": func() (cli.Command, error) {
-			return &IndexCommand{
 				Ui: &cli.ColoredUi{Ui: ui},
 			}, nil
 		},

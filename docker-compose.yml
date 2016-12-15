@@ -1,5 +1,5 @@
 vault:
-  image: vault
+  image: vault:0.6.0
   ports:
     - "8200:8200"
   environment:

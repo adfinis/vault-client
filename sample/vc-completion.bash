@@ -7,11 +7,11 @@ _vc()
     if [[ $COMP_CWORD -gt 1 ]]; then
 	case "${COMP_WORDS[1]}" in
 	    show|insert|edit|rm|ls|cp|mv)
-		COMPREPLY=($(compgen -W "$(vc index)" -- ${cur}))
+		COMPREPLY=($(compgen -W "$(vc ls -r)" -- ${cur}))
 		;;
 	esac
     else
-        COMPREPLY=($(compgen -W "show insert index cp mv rm edit ls" -- $cur))
+        COMPREPLY=($(compgen -W "show insert cp mv rm edit ls" -- $cur))
     fi
 }
 complete -F _vc vc
