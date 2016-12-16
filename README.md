@@ -1,9 +1,14 @@
 Vault Client
 ------------
-`vc` is command-line interface to vault inspired by `pass`. 
+`vc` is a command-line interface to (HashiCorp's Vault)[https://www.vaultproject.io/] inspired by (pass)[https://www.passwordstore.org/]. 
 
-* Makes secrets from the `generic` backend easiable accessible from the command-line
-* Features autocompletion for bash
+* Makes secrets from `generic` backends easy accessible
+* Features auto completion for `bash`
+
+Demo
+----
+
+![gif](sample/demo.gif)
 
 Configuration
 -------------
@@ -11,11 +16,7 @@ Configuration
 $ echo ~/.vaultrc <<EOF
 host: 127.0.0.1 
 port: 9200
-cacert: /etc/ssl/cert.pem
 user: admin
-gpgid: 0x518417425D442A7A
-encrypted_password: "password"
-index_file: ~/dev/shm/vaultindex
 EOF
 $ chmod 600 ~/.vaultrc
 ```

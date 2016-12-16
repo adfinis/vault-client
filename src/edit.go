@@ -45,9 +45,7 @@ func (c *EditCommand) Run(args []string) int {
 		if answer := strings.ToLower(answer); answer == "n" {
 			return 0
 		}
-
-		data["example_key"] = "example_value"
-
+		data["key"] = "value"
 	} else {
 		data = secret.Data
 	}
