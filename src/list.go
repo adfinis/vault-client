@@ -57,7 +57,9 @@ func (c *ListCommand) Run(args []string) int {
 	}
 
 	for _, path := range paths {
-		c.Ui.Output(path)
+		// The `BasicUi.Output` function uses ANSI escape sequences
+		// which does not work nicely with bash completion
+		fmt.Println(path)
 	}
 
 	return 0

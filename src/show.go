@@ -25,18 +25,19 @@ func (c *ShowCommand) Run(args []string) int {
 
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
-		c.Ui.Info(fmt.Sprintf("The was an error while retrieving the secret: %q", err))
+		c.Ui.Error(fmt.Sprintf("The was an error while retrieving the secret: %q", err))
 		return 1
 	}
 
 	if secret == nil {
-		c.Ui.Info("Secret does not exist")
+		c.Ui.Error("Secret does not exist")
 		return 1
 	}
 
 	for k, v := range secret.Data {
-		fmt.Printf("%v: %v\n", k, v)
+		c.Ui.Output(fmt.Sprintf("%v: %v", k, v))
 	}
+
 	return 0
 }
 

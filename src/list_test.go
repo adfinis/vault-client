@@ -77,14 +77,6 @@ secret3`
 
 	t.Run("ListExistingSecretsRecusively", func(t *testing.T) {
 
-		data := make(map[string]interface{})
-		data["key"] = "value"
-
-		_, err = vc.Logical().Write("secret/directory/secret1", data)
-		if err != nil {
-			t.Fatalf("Unable to write test secret: %q", err)
-		}
-
 		args := []string{"-r", ""}
 
 		if rc := c.Run(args); rc != 0 {
@@ -96,8 +88,7 @@ secret3`
 			t.Fatalf("expected error:\n%s\n\nto include: %q", actual, expectedErr)
 		}
 
-		expectedOutput := `secret/directory/secret1
-secret/secret1
+		expectedOutput := `secret/secret1
 secret/secret2
 secret/secret3`
 		if actual := ui.OutputWriter.String(); !strings.Contains(actual, expectedOutput) {
