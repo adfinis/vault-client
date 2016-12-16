@@ -40,7 +40,10 @@ func (c *InsertCommand) Run(args []string) int {
 }
 
 func (c *InsertCommand) Help() string {
-	return "Remove an existing secret"
+	return `Usage: vc insert key1=value1 key2=value2...
+
+  Inserts a new secret at the specified path with a set of key/value pairs.
+`
 }
 
 func (c *InsertCommand) Synopsis() string {

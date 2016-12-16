@@ -43,9 +43,12 @@ func (c *DeleteCommand) Run(args []string) int {
 }
 
 func (c *DeleteCommand) Help() string {
-	return "Remove an existing secret"
+	return `Usage: vc rm path
+
+  Deletes a secret at the specified path.
+`
 }
 
 func (c *DeleteCommand) Synopsis() string {
-	return "Remove an existing secret"
+	return "Remove a  secret at specified path"
 }

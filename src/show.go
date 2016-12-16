@@ -41,7 +41,10 @@ func (c *ShowCommand) Run(args []string) int {
 }
 
 func (c *ShowCommand) Help() string {
-	return "Show an existing secret"
+	return `Usage: vc show path
+
+  Prints a secret specified by it's path to stdout.
+`
 }
 
 func (c *ShowCommand) Synopsis() string {

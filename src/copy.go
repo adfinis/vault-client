@@ -38,7 +38,11 @@ func (c *CopyCommand) Run(args []string) int {
 }
 
 func (c *CopyCommand) Help() string {
-	return "Copy an existing secret to another location"
+	return `Usage: vc cp source dest
+
+  Copies an existing secret to a new destination path.
+  The source secret will be preserved.
+`
 }
 
 func (c *CopyCommand) Synopsis() string {

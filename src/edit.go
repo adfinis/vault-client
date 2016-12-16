@@ -67,11 +67,15 @@ func (c *EditCommand) Run(args []string) int {
 }
 
 func (c *EditCommand) Help() string {
-	return "Edit a secret"
+	return `Usage: vc edit path
+
+  This command edits a secrets at a certain path with your editor of choice
+  (set through $EDITOR). If no editor is specified vi will be used as fallback.
+`
 }
 
 func (c *EditCommand) Synopsis() string {
-	return "Edit a secret"
+	return "Edit a secret at specified path"
 }
 
 // Processes a secret by unmarshaling and writting it into a tempfile.

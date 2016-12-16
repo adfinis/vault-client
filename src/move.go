@@ -44,7 +44,11 @@ func (c *MoveCommand) Run(args []string) int {
 }
 
 func (c *MoveCommand) Help() string {
-	return "Move an existing secret to another location"
+	return `Usage: vc mv source dest
+
+  Moves an existing secret to a new destination path.
+  The source secret will be removed.
+`
 }
 
 func (c *MoveCommand) Synopsis() string {

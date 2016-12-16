@@ -66,13 +66,12 @@ func (c *ListCommand) Run(args []string) int {
 func (c *ListCommand) Help() string {
 	return `Usage: vc ls [options] path
 
-  This command lists all available secrets at a certain path.
+  Lists all available secrets at the specified path.
 
 Options:
 
   -r                             Recusively show all available secrets
 `
-
 }
 
 func (c *ListCommand) Synopsis() string {
