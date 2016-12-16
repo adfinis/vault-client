@@ -1,6 +1,6 @@
 Vault Client
 ------------
-`vc` is a command-line interface to (HashiCorp's Vault)[https://www.vaultproject.io/] inspired by (pass)[https://www.passwordstore.org/]. 
+`vc` is a command-line interface to [HashiCorp's Vault](https://www.vaultproject.io/) inspired by [pass](https://www.passwordstore.org/).
 
 * Makes secrets from `generic` backends easy accessible
 * Features auto completion for `bash`
