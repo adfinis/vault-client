@@ -57,7 +57,7 @@ func (c *ListCommand) Run(args []string) int {
 	}
 
 	for _, path := range paths {
-		fmt.Println(path)
+		c.Ui.Output(path)
 	}
 
 	return 0
