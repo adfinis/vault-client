@@ -10,8 +10,14 @@ Demo
 
 ![gif](sample/demo.gif)
 
+Installation
+------------
+1. Download the [latest release](https://git.adfinis-sygroup.ch/ad-sy/vault-client.src/builds/artifacts/master/download?job=build).
+2. Unzip and move `vc` into a directory of choice.
+
 Configuration
 -------------
+The configuration happens through a simple yaml file.
 ```
 $ echo ~/.vaultrc <<EOF
 host: 127.0.0.1 
