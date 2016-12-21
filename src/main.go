@@ -48,7 +48,7 @@ func InitializeClient(cfg Config) error {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	vc.SetToken(cfg.Password)
+	vc.SetToken(cfg.Token)
 	vc.Auth()
 
 	return nil

@@ -8,20 +8,18 @@ import (
 )
 
 type Config struct {
-	Host      string `yaml:"host"`
-	Port      int    `yaml:"port"`
-	User      string `yaml:"user"`
-	Password  string `yaml:"password"`
-	IndexFile string `yaml:"index_file"`
+	Host  string `yaml:"host"`
+	Port  int    `yaml:"port"`
+	Token string `yaml:"token"`
 }
 
 func LoadConfig() error {
 
+	// Configuration default values
 	cfg = Config{
-		Host:      "127.0.0.1",
-		Port:      8200,
-		Password:  "password",
-		IndexFile: "/dev/shm/vaultindex",
+		Host:  "127.0.0.1",
+		Port:  8200,
+		Token: "password",
 	}
 
 	usr, err := user.Current()

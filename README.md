@@ -21,8 +21,8 @@ The configuration happens through a simple yaml file.
 ```
 $ echo ~/.vaultrc <<EOF
 host: 127.0.0.1 
-port: 9200
-user: admin
+port: 8200
+token: password
 EOF
 $ chmod 600 ~/.vaultrc
 ```
