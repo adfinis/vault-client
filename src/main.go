@@ -68,38 +68,38 @@ func LoadCli() *cli.CLI {
 	c.Commands = map[string]cli.CommandFactory{
 		"edit": func() (cli.Command, error) {
 			return &EditCommand{
-				Ui: &cli.ColoredUi{Ui: ui},
+				Ui: ui,
 			}, nil
 		},
 		"rm": func() (cli.Command, error) {
 			return &DeleteCommand{
-				Ui: &cli.ColoredUi{Ui: ui},
+				Ui: ui,
 			}, nil
 		},
 		"insert": func() (cli.Command, error) {
 			return &InsertCommand{
-				Ui: &cli.ColoredUi{Ui: ui},
+				Ui: ui,
 			}, nil
 
 		},
 		"mv": func() (cli.Command, error) {
 			return &MoveCommand{
-				Ui: &cli.ColoredUi{Ui: ui},
+				Ui: ui,
 			}, nil
 		},
 		"cp": func() (cli.Command, error) {
 			return &CopyCommand{
-				Ui: &cli.ColoredUi{Ui: ui},
+				Ui: ui,
 			}, nil
 		},
 		"show": func() (cli.Command, error) {
 			return &ShowCommand{
-				Ui: &cli.ColoredUi{Ui: ui},
+				Ui: ui,
 			}, nil
 		},
 		"ls": func() (cli.Command, error) {
 			return &ListCommand{
-				Ui: &cli.ColoredUi{Ui: ui},
+				Ui: ui,
 			}, nil
 		},
 	}
