@@ -12,7 +12,7 @@ Demo
 
 Installation
 ------------
-1. Download the [latest release](https://git.adfinis-sygroup.ch/ad-sy/vault-client.src/builds/artifacts/master/download?job=build).
+1. Download the [latest release](https://github.com/adfinis-sygroup/vault-client/releases).
 2. Unzip and move `vc` into a directory of choice.
 
 Configuration
@@ -26,3 +26,14 @@ token: password
 EOF
 $ chmod 600 ~/.vaultrc
 ```
+
+Contributions
+-------------
+Contributions are more than welcome! Please feel free to open new issues or
+pull requests.
+
+License
+-------
+GNU GENERAL PUBLIC LICENSE Version 3
+
+See the	[LICENSE](LICENSE) file.
