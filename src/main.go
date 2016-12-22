@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"os"
 
 	vault "github.com/hashicorp/vault/api"
@@ -37,8 +39,25 @@ func main() {
 
 func InitializeClient(cfg Config) error {
 
+	var protocol string
+
+	if cfg.TLS {
+		protocol = "https"
+	} else {
+		protocol = "http"
+	}
+
+	tr := &http.Transport{}
+
+	if !cfg.VerifyTLS {
+		tr = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+
 	vcfg := vault.Config{
-		Address: fmt.Sprintf("http://%v:%v", cfg.Host, cfg.Port),
+		Address:    fmt.Sprintf("%v://%v:%v", protocol, cfg.Host, cfg.Port),
+		HttpClient: &http.Client{Transport: tr},
 	}
 
 	var err error
