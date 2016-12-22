@@ -19,11 +19,11 @@ Configuration
 -------------
 The configuration happens through a simple yaml file.
 ```
-$ echo ~/.vaultrc <<EOF
-host: 127.0.0.1 
+	$ echo "host: 127.0.0.1
 port: 8200
 token: password
-EOF
+tls: true
+verify_tls: true" >  ~/.vaultrc
 $ chmod 600 ~/.vaultrc
 ```
 
