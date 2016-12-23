@@ -1,0 +1,5 @@
+host: 127.0.0.1 
+port: 8200
+token: password
+tls: false
+verify_tls: false
