@@ -1,5 +1,8 @@
 Vault Client
 ------------
+[![Travis](https://img.shields.io/travis/adfinis-sygroup/vault-client.svg?style=flat-square)](https://travis-ci.org/adfinis-sygroup/vault-client)
+[![License](https://img.shields.io/github/license/adfinis-sygroup/vault-client.svg?style=flat-square)](LICENSE)
+
 `vc` is a command-line interface to [HashiCorp's Vault](https://www.vaultproject.io/) inspired by [pass](https://www.passwordstore.org/).
 
 * Makes secrets from `generic` backends easy accessible
@@ -7,7 +10,6 @@ Vault Client
 
 Demo
 ----
-
 ![gif](sample/demo.gif)
 
 Installation
@@ -19,7 +21,7 @@ Configuration
 -------------
 The configuration happens through a simple yaml file.
 ```
-	$ echo "host: 127.0.0.1
+$ echo "host: 127.0.0.1
 port: 8200
 token: password
 tls: true
