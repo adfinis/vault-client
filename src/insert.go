@@ -47,5 +47,5 @@ func (c *InsertCommand) Help() string {
 }
 
 func (c *InsertCommand) Synopsis() string {
-	return "Remove an existing secret"
+	return "Insert an new secret"
 }

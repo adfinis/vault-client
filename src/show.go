@@ -25,7 +25,7 @@ func (c *ShowCommand) Run(args []string) int {
 
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("The was an error while retrieving the secret: %q", err))
+		c.Ui.Error(fmt.Sprintf("There was an error while retrieving the secret: %q", err))
 		return 1
 	}
 
@@ -44,7 +44,7 @@ func (c *ShowCommand) Run(args []string) int {
 func (c *ShowCommand) Help() string {
 	return `Usage: vc show path
 
-  Prints a secret specified by it's path to stdout.
+  Prints a secret specified by its path to stdout.
 `
 }
 

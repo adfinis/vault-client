@@ -50,5 +50,5 @@ func (c *DeleteCommand) Help() string {
 }
 
 func (c *DeleteCommand) Synopsis() string {
-	return "Remove a  secret at specified path"
+	return "Remove a secret at specified path"
 }
