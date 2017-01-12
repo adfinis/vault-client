@@ -67,7 +67,7 @@ func (c *EditCommand) Run(args []string) int {
 func (c *EditCommand) Help() string {
 	return `Usage: vc edit path
 
-  This command edits a secrets at a certain path with your editor of choice
+  This command edits a secret at a certain path with your editor of choice
   (set through $EDITOR). If no editor is specified vi will be used as fallback.
 `
 }

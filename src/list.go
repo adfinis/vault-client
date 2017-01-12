@@ -70,12 +70,12 @@ func (c *ListCommand) Help() string {
 
 Options:
 
-  -r                             Recusively show all available secrets
+  -r                             Recursively show all available secrets
 `
 }
 
 func (c *ListCommand) Synopsis() string {
-	return "List all secrets at path"
+	return "List all secrets at specified path"
 }
 
 // Build a list of all available paths
