@@ -52,13 +52,23 @@ func (c *EditCommand) Run(args []string) int {
 
 	editedData, err := ProcessSecret(data)
 	if err != nil {
-		c.Ui.Output(fmt.Sprintf("%v\nSecret has not changed.", err))
+		c.Ui.Error(fmt.Sprintf("%v\nSecret has not changed.", err))
+		c.Ui.Error("Error")
 		return 1
 	}
 
-	_, err = vc.Logical().Write(path, editedData)
-	if err != nil {
-		return 1
+	if len(editedData) == 0 {
+		// Delete the secret if no key/value pairs are left
+		_, err = vc.Logical().Delete(path)
+		if err != nil {
+			return 1
+		}
+		c.Ui.Output(fmt.Sprintf("Secret was deleted because no K/V pairs were associated with it."))
+	} else {
+		_, err = vc.Logical().Write(path, editedData)
+		if err != nil {
+			return 1
+		}
 	}
 
 	return 0
@@ -80,8 +90,6 @@ func (c *EditCommand) Synopsis() string {
 // After the file was edit it will reread the tempfile marhsal the data and clean up.
 func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) {
 
-	parsedData := make(map[string]interface{})
-
 	f, err := ioutil.TempFile("", "vaultsecret")
 	if err != nil {
 		return nil, err
@@ -99,6 +107,8 @@ func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) 
 	if err != nil {
 		return nil, err
 	}
+
+	parsedData := make(map[string]interface{})
 
 	err = yaml.Unmarshal(editedData, parsedData)
 	if err != nil {
