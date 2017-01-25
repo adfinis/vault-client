@@ -53,7 +53,6 @@ func (c *EditCommand) Run(args []string) int {
 	editedData, err := ProcessSecret(data)
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("%v\nSecret has not changed.", err))
-		c.Ui.Error("Error")
 		return 1
 	}
 
