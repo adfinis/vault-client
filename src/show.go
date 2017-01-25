@@ -34,8 +34,20 @@ func (c *ShowCommand) Run(args []string) int {
 		return 1
 	}
 
+	// Get length of the largest key in order to calculate the
+	// "whitespace padded" representation of `show`
+	max_key_len := 0
+	for k, _ := range secret.Data {
+		if key_len := len(k); key_len > max_key_len {
+			max_key_len = key_len
+		}
+	}
+
+	// Add an additional X whitespaces between "key:" and "value"
+	max_key_len += 4
+
 	for k, v := range secret.Data {
-		c.Ui.Output(fmt.Sprintf("%v: %v", k, v))
+		c.Ui.Output(fmt.Sprintf("%-"+fmt.Sprint(max_key_len)+"v %v", fmt.Sprint(k, ":"), v))
 	}
 
 	return 0
