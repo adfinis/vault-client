@@ -7,7 +7,7 @@ test: ## Runs all tests
 	go test src/*.go
 
 install:  ## Installs go dependencies
-	for dep in gopkg.in/yaml.v2 github.com/hashicorp/vault/api github.com/mitchellh/cli; do \
+	for dep in github.com/hashicorp/vault/api github.com/mitchellh/cli; do \
 		go get $$dep; \
 	done
 

@@ -1,15 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/mitchellh/cli"
-	"gopkg.in/yaml.v2"
 )
 
 type EditCommand struct {
@@ -96,35 +96,45 @@ func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) 
 
 	defer os.Remove(f.Name())
 
-	ymldata, err := yaml.Marshal(&data)
-	_, err = f.Write(ymldata)
+	// Sort secrets lexicographically
+	var keys []string
+	for k := range data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	// Write secrets to tempfile
+	for _, k := range keys {
+		f.WriteString(k + ": " + data[k].(string) + "\n")
+	}
+	f.Close()
+
+	// Edit temporary file
+	err = EditFile(f.Name())
 	if err != nil {
 		return nil, err
 	}
 
-	editedData, err := EditFile(f.Name())
-	if err != nil {
-		return nil, err
-	}
-
+	// Parse secret
 	parsedData := make(map[string]interface{})
+	editedFile, err := os.Open(f.Name())
+	scanner := bufio.NewScanner(editedFile)
 
-	err = yaml.Unmarshal(editedData, parsedData)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to parse yaml tempfile: %q", err)
-	}
-
-	err = ValidateData(parsedData)
-	if err != nil {
-		return nil, err
+	for scanner.Scan() {
+		line := scanner.Text()
+		kv_pair := strings.Split(line, ": ")
+		if len(kv_pair) == 2 {
+			parsedData[kv_pair[0]] = kv_pair[1]
+		} else {
+			return nil, fmt.Errorf("Unable to parse key/value pair: %q", line)
+		}
 	}
 
 	return parsedData, nil
-
 }
 
 // Edit a file with the editor specified in $EDITOR or vi as fallback
-func EditFile(path string) ([]byte, error) {
+func EditFile(path string) error {
 
 	var cmdstring []string
 
@@ -144,32 +154,8 @@ func EditFile(path string) ([]byte, error) {
 
 	err := cmd.Run()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	content, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	return content, nil
-}
-
-// Check if data keys of a secrets contain only valid characters
-func ValidateData(data map[string]interface{}) error {
-
-	allowedCharacters := "^[A-Za-z0-9-_]*$"
-
-	for k := range data {
-		matched, err := regexp.MatchString(allowedCharacters, k)
-		if err != nil {
-			return fmt.Errorf("Unable to validate secret keys: %q", err)
-		}
-
-		if !matched {
-			return fmt.Errorf("Invalid characters in key %q", k)
-		}
-
-	}
 	return nil
 }
