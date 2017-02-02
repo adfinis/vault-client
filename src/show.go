@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/mitchellh/cli"
 )
@@ -36,18 +37,27 @@ func (c *ShowCommand) Run(args []string) int {
 
 	// Get length of the largest key in order to calculate the
 	// "whitespace padded" representation of `show`
-	max_key_len := 0
+	MaxKeyLen := 0
 	for k, _ := range secret.Data {
-		if key_len := len(k); key_len > max_key_len {
-			max_key_len = key_len
+		if KeyLen := len(k); KeyLen > MaxKeyLen {
+			MaxKeyLen = KeyLen
 		}
 	}
 
 	// Add an additional X whitespaces between "key:" and "value"
-	max_key_len += 4
+	MaxKeyLen += 4
 
-	for k, v := range secret.Data {
-		c.Ui.Output(fmt.Sprintf("%-"+fmt.Sprint(max_key_len)+"v %v", fmt.Sprint(k, ":"), v))
+	// Sort secrets lexicographically
+	var keys []string
+	for k := range secret.Data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		c.Ui.Output(fmt.Sprintf("%-"+fmt.Sprint(MaxKeyLen)+"v %v",
+			k+":",           // Secret identifier
+			secret.Data[k])) // Secret value
 	}
 
 	return 0

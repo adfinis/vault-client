@@ -1,15 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/mitchellh/cli"
-	"gopkg.in/yaml.v2"
 )
 
 type EditCommand struct {
@@ -28,7 +28,6 @@ func (c *EditCommand) Run(args []string) int {
 	}
 
 	path := args[0]
-
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
 		return 1
@@ -45,7 +44,7 @@ func (c *EditCommand) Run(args []string) int {
 		if answer := strings.ToLower(answer); answer == "n" {
 			return 0
 		}
-		data["key"] = "value"
+
 	} else {
 		data = secret.Data
 	}
@@ -85,46 +84,59 @@ func (c *EditCommand) Synopsis() string {
 	return "Edit a secret at specified path"
 }
 
-// Processes a secret by unmarshaling and writting it into a tempfile.
-// After the file was edit it will reread the tempfile marhsal the data and clean up.
+// Processes a secret by writting all k/v pairs into a tempfile. After the file was edited through a
+// text editor it will be parsed.
 func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) {
 
-	f, err := ioutil.TempFile("", "vaultsecret")
+	file, err := ioutil.TempFile("", "vaultsecret")
 	if err != nil {
 		return nil, err
 	}
 
-	defer os.Remove(f.Name())
+	defer os.Remove(file.Name())
 
-	ymldata, err := yaml.Marshal(&data)
-	_, err = f.Write(ymldata)
+	// Sort secrets lexicographically
+	var keys []string
+	for k := range data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	// Write secrets to tempfile in sorted order
+	for _, k := range keys {
+		file.WriteString(k + ": " + data[k].(string) + "\n")
+	}
+	file.Close()
+
+	err = EditFile(file.Name())
 	if err != nil {
 		return nil, err
 	}
 
-	editedData, err := EditFile(f.Name())
-	if err != nil {
-		return nil, err
-	}
-
+	// Parse secret
 	parsedData := make(map[string]interface{})
-
-	err = yaml.Unmarshal(editedData, parsedData)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to parse yaml tempfile: %q", err)
-	}
-
-	err = ValidateData(parsedData)
+	editedFile, err := os.Open(file.Name())
 	if err != nil {
 		return nil, err
+	}
+
+	scanner := bufio.NewScanner(editedFile)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		kv_pair := strings.Split(line, ": ")
+		if len(kv_pair) == 2 {
+			parsedData[kv_pair[0]] = kv_pair[1]
+		} else {
+			return nil, fmt.Errorf("Unable to parse key/value pair: %q", line)
+		}
 	}
 
 	return parsedData, nil
-
 }
 
 // Edit a file with the editor specified in $EDITOR or vi as fallback
-func EditFile(path string) ([]byte, error) {
+func EditFile(path string) error {
 
 	var cmdstring []string
 
@@ -144,32 +156,8 @@ func EditFile(path string) ([]byte, error) {
 
 	err := cmd.Run()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	content, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	return content, nil
-}
-
-// Check if data keys of a secrets contain only valid characters
-func ValidateData(data map[string]interface{}) error {
-
-	allowedCharacters := "^[A-Za-z0-9-_]*$"
-
-	for k := range data {
-		matched, err := regexp.MatchString(allowedCharacters, k)
-		if err != nil {
-			return fmt.Errorf("Unable to validate secret keys: %q", err)
-		}
-
-		if !matched {
-			return fmt.Errorf("Invalid characters in key %q", k)
-		}
-
-	}
 	return nil
 }
