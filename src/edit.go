@@ -28,7 +28,6 @@ func (c *EditCommand) Run(args []string) int {
 	}
 
 	path := args[0]
-
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
 		return 1
@@ -45,7 +44,7 @@ func (c *EditCommand) Run(args []string) int {
 		if answer := strings.ToLower(answer); answer == "n" {
 			return 0
 		}
-		data["key"] = "value"
+
 	} else {
 		data = secret.Data
 	}
@@ -85,16 +84,16 @@ func (c *EditCommand) Synopsis() string {
 	return "Edit a secret at specified path"
 }
 
-// Processes a secret by unmarshaling and writting it into a tempfile.
-// After the file was edit it will reread the tempfile marhsal the data and clean up.
+// Processes a secret by writting all k/v pairs into a tempfile. After the file was edited through a
+// text editor it will be parsed.
 func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) {
 
-	f, err := ioutil.TempFile("", "vaultsecret")
+	file, err := ioutil.TempFile("", "vaultsecret")
 	if err != nil {
 		return nil, err
 	}
 
-	defer os.Remove(f.Name())
+	defer os.Remove(file.Name())
 
 	// Sort secrets lexicographically
 	var keys []string
@@ -103,21 +102,24 @@ func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) 
 	}
 	sort.Strings(keys)
 
-	// Write secrets to tempfile
+	// Write secrets to tempfile in sorted order
 	for _, k := range keys {
-		f.WriteString(k + ": " + data[k].(string) + "\n")
+		file.WriteString(k + ": " + data[k].(string) + "\n")
 	}
-	f.Close()
+	file.Close()
 
-	// Edit temporary file
-	err = EditFile(f.Name())
+	err = EditFile(file.Name())
 	if err != nil {
 		return nil, err
 	}
 
 	// Parse secret
 	parsedData := make(map[string]interface{})
-	editedFile, err := os.Open(f.Name())
+	editedFile, err := os.Open(file.Name())
+	if err != nil {
+		return nil, err
+	}
+
 	scanner := bufio.NewScanner(editedFile)
 
 	for scanner.Scan() {
