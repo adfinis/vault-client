@@ -20,6 +20,18 @@ Installation
 [latest release](https://github.com/adfinis-sygroup/vault-client/releases).
 2. Unzip and move `vc` into a directory of choice.
 
+Build Instructions
+------------------
+To build vault-client you need a Go compiler and Git.
+```
+$ apt-get install git go
+$ git clone https://github.com/adfinis-sygroup/vault-client.git
+$ cd vault-client
+$ make build
+```
+`make build` will install Go dependencies and build vault-client. After you
+should have a binary `vc` in your working directory.
+
 Configuration
 -------------
 The configuration happens through a simple yaml file.
