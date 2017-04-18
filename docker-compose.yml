@@ -4,3 +4,8 @@ vault:
     - "8200:8200"
   environment:
     - VAULT_DEV_ROOT_TOKEN_ID=password
+
+consul:
+  image: consul:0.8.0
+  ports:
+    - "8500:8500"

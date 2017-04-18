@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"os"
 
+	consul "github.com/hashicorp/consul/api"
 	vault "github.com/hashicorp/vault/api"
 	"github.com/mitchellh/cli"
 )
 
+var cc *consul.Client
 var vc *vault.Client
 var cfg Config
 
@@ -21,7 +23,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = InitializeClient(cfg)
+	err = InitializeConsulClient()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+
+	err = InitializeVaultClient()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
@@ -37,11 +45,38 @@ func main() {
 	os.Exit(exitStatus)
 }
 
-func InitializeClient(cfg Config) error {
+// Initalizes a globally accessible Consul HTTP API client
+func InitializeConsulClient() error {
+
+	var err error
 
 	var protocol string
 
-	if cfg.TLS {
+	if cfg.Consul.TLS {
+		protocol = "https"
+	} else {
+		protocol = "http"
+	}
+
+	ccfg := consul.DefaultConfig()
+
+	// Compose Consul HTTP URL
+	ccfg.Address = fmt.Sprintf("%v://%v:%v", protocol, cfg.Consul.Host, cfg.Consul.Port)
+
+	cc, err = consul.NewClient(ccfg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Initalizes a globally accessible Vault HTTP API client
+func InitializeVaultClient() error {
+
+	var protocol string
+
+	if cfg.Vault.TLS {
 		protocol = "https"
 	} else {
 		protocol = "http"
@@ -49,14 +84,14 @@ func InitializeClient(cfg Config) error {
 
 	tr := &http.Transport{}
 
-	if !cfg.VerifyTLS {
+	if !cfg.Vault.VerifyTLS {
 		tr = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
 	}
 
 	vcfg := vault.Config{
-		Address:    fmt.Sprintf("%v://%v:%v", protocol, cfg.Host, cfg.Port),
+		Address:    fmt.Sprintf("%v://%v:%v", protocol, cfg.Vault.Host, cfg.Vault.Port),
 		HttpClient: &http.Client{Transport: tr},
 	}
 
@@ -67,7 +102,7 @@ func InitializeClient(cfg Config) error {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	vc.SetToken(cfg.Token)
+	vc.SetToken(cfg.Vault.Token)
 	vc.Auth()
 
 	return nil

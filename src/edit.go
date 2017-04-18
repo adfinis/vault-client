@@ -115,12 +115,12 @@ func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) 
 
 	// Parse secret
 	parsedData := make(map[string]interface{})
-	editedFile, err := os.Open(file.Name())
+	file.Seek(0, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	scanner := bufio.NewScanner(editedFile)
+	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
 		line := scanner.Text()
