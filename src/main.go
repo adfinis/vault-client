@@ -23,19 +23,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = InitializeConsulClient()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-
-	err = InitializeVaultClient()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-
 	c := LoadCli()
+
+	err = InitializeClients()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
 
 	exitStatus, err := c.Run()
 	if err != nil {
@@ -43,6 +37,26 @@ func main() {
 	}
 
 	os.Exit(exitStatus)
+}
+
+// Initalizes HTTP API Clients for Vault and Consul depending on section in the configuration
+func InitializeClients() error {
+
+	var err error
+
+	if &cfg.Consul != nil {
+		err = InitializeConsulClient()
+		if err != nil {
+			return err
+		}
+	}
+
+	err = InitializeVaultClient()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Initalizes a globally accessible Consul HTTP API client

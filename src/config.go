@@ -13,12 +13,12 @@ type Config struct {
 }
 
 type ConsulConfig struct {
-	Host      string `yaml:"host"`
-	Port      int    `yaml:"port"`
-	Token     string `yaml:"token"`
-	TLS       bool   `yaml:"tls"`
-	VerifyTLS bool   `yaml:"verify_tls"`
-	KVRoot    string `yaml:"kv_root"`
+	Host       string `yaml:"host"`
+	Port       int    `yaml:"port"`
+	Token      string `yaml:"token"`
+	TLS        bool   `yaml:"tls"`
+	VerifyTLS  bool   `yaml:"verify_tls"`
+	LockKVRoot string `yaml:"lock_kv_root"`
 }
 
 type VaultConfig struct {

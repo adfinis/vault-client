@@ -9,6 +9,7 @@ Vault Client
 
 * Makes secrets from `generic` backends easy accessible
 * Features auto completion for `bash`
+* Lock currently edited secrets through [Consul's session API](https://www.consul.io/docs/internals/sessions.html)
 
 Demo
 ----
