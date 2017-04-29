@@ -16,7 +16,7 @@ func TestList(t *testing.T) {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	err = InitializeClient(cfg)
+	err = InitializeVaultClient()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
