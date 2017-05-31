@@ -11,4 +11,4 @@ consul:
   token: password
   tls: false
   verify_tls: false
-  kv_root: vault-meta
+  lock_kv_root: vault-client
