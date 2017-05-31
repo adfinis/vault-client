@@ -6,14 +6,29 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"os/user"
 	"sort"
 	"strings"
 
+	consul "github.com/hashicorp/consul/api"
 	"github.com/mitchellh/cli"
+	"time"
 )
 
 type EditCommand struct {
 	Ui cli.Ui
+}
+
+func (c *EditCommand) Help() string {
+	return `Usage: vc edit path
+
+  This command edits a secret at a certain path with your editor of choice
+  (set through $EDITOR). If no editor is specified vi will be used as fallback.
+`
+}
+
+func (c *EditCommand) Synopsis() string {
+	return "Edit a secret at specified path"
 }
 
 func (c *EditCommand) Run(args []string) int {
@@ -28,6 +43,13 @@ func (c *EditCommand) Run(args []string) int {
 	}
 
 	path := args[0]
+
+	lock, err := LockSecret(path)
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Unable to create the lock: %v\n", err))
+		return 1
+	}
+
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
 		return 1
@@ -49,9 +71,25 @@ func (c *EditCommand) Run(args []string) int {
 		data = secret.Data
 	}
 
-	editedData, err := ProcessSecret(data)
+	file, err := ioutil.TempFile("", "vaultsecret")
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("%v\nSecret has not changed.", err))
+		c.Ui.Error(fmt.Sprintf("Unable to create tempfile: %v\n", err))
+		return 1
+	}
+
+	defer os.Remove(file.Name())
+
+	WriteSecretToFile(data, file)
+
+	err = EditFileWithEditor(file.Name())
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Unable to edit file with editor: %v\n", err))
+		return 1
+	}
+
+	editedData, err := ParseSecretFromFile(file)
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Secret has not changed: %v\n.", err))
 		return 1
 	}
 
@@ -69,31 +107,71 @@ func (c *EditCommand) Run(args []string) int {
 		}
 	}
 
+	// Release lock so other people can edited the secret
+	err = lock.Unlock()
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("%v\nUnable to remove the lock", err))
+		return 1
+	}
+
 	return 0
 }
 
-func (c *EditCommand) Help() string {
-	return `Usage: vc edit path
+// Return a Lock to the secret that the Users wants to edit
+func LockSecret(path string) (*consul.Lock, error) {
 
-  This command edits a secret at a certain path with your editor of choice
-  (set through $EDITOR). If no editor is specified vi will be used as fallback.
-`
-}
+	var lock *consul.Lock
 
-func (c *EditCommand) Synopsis() string {
-	return "Edit a secret at specified path"
-}
-
-// Processes a secret by writting all k/v pairs into a tempfile. After the file was edited through a
-// text editor it will be parsed.
-func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) {
-
-	file, err := ioutil.TempFile("", "vaultsecret")
+	user, err := user.Current()
 	if err != nil {
-		return nil, err
+		return lock, err
 	}
 
-	defer os.Remove(file.Name())
+	hostname, err := os.Hostname()
+	if err != nil {
+		return lock, err
+	}
+
+	lockKey := cfg.Consul.LockKVRoot + path
+	lockValue := []byte(fmt.Sprintf("%v@%v", user.Name, hostname))
+
+	lockOpts := &consul.LockOptions{
+		Key:          lockKey,
+		Value:        lockValue,
+		LockWaitTime: 2 * time.Second,
+		LockTryOnce:  true,
+		SessionOpts: &consul.SessionEntry{
+			LockDelay: 1,
+			TTL:       "600s",
+		},
+	}
+
+	lock, err = cc.LockOpts(lockOpts)
+	if err != nil {
+		return lock, err
+	}
+
+	stpCh, err := lock.Lock(nil)
+	if err != nil {
+		return lock, err
+	}
+
+	if stpCh == nil {
+		kv := cc.KV()
+		kvpair, _, err := kv.Get(lockKey, nil)
+		if err != nil {
+			return lock, err
+		}
+
+		return lock, fmt.Errorf("Secret is already locked by %v", string(kvpair.Value))
+	}
+
+	return lock, nil
+
+}
+
+// Write k/v pairs of secret to a file
+func WriteSecretToFile(data map[string]interface{}, file *os.File) {
 
 	// Sort secrets lexicographically
 	var keys []string
@@ -106,51 +184,26 @@ func ProcessSecret(data map[string]interface{}) (map[string]interface{}, error) 
 	for _, k := range keys {
 		file.WriteString(k + ": " + data[k].(string) + "\n")
 	}
-	file.Close()
 
-	err = EditFile(file.Name())
-	if err != nil {
-		return nil, err
-	}
-
-	// Parse secret
-	parsedData := make(map[string]interface{})
-	editedFile, err := os.Open(file.Name())
-	if err != nil {
-		return nil, err
-	}
-
-	scanner := bufio.NewScanner(editedFile)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		kv_pair := strings.Split(line, ": ")
-		if len(kv_pair) == 2 {
-			parsedData[kv_pair[0]] = kv_pair[1]
-		} else {
-			return nil, fmt.Errorf("Unable to parse key/value pair: %q", line)
-		}
-	}
-
-	return parsedData, nil
 }
 
-// Edit a file with the editor specified in $EDITOR or vi as fallback
-func EditFile(path string) error {
+// Edit a file with the editor specified in $EDITOR. If $EDITOR is not defined vi will be used as
+// fallback.
+func EditFileWithEditor(path string) error {
 
-	var cmdstring []string
+	var cmdstr []string
 
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
-		cmdstring = append(cmdstring, "vi")
+		cmdstr = append(cmdstr, "vi")
 	} else {
-		cmdstring = strings.Split(editor, " ")
+		// If $EDITOR has arguments (e.g. "emacs -nw") split them up
+		cmdstr = strings.Split(editor, " ")
 	}
 
-	cmdstring = append(cmdstring, path)
-	_ = cmdstring
+	cmdstr = append(cmdstr, path)
 
-	cmd := exec.Command(cmdstring[0], cmdstring[1:len(cmdstring)]...)
+	cmd := exec.Command(cmdstr[0], cmdstr[1:len(cmdstr)]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 
@@ -160,4 +213,28 @@ func EditFile(path string) error {
 	}
 
 	return nil
+}
+
+// Parse secrets from file
+func ParseSecretFromFile(file *os.File) (map[string]interface{}, error) {
+
+	data := make(map[string]interface{})
+
+	// Parse the file from the beginning
+	file.Seek(0, 0)
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		kv_pair := strings.Split(line, ": ")
+
+		if len(kv_pair) == 2 {
+			data[kv_pair[0]] = kv_pair[1]
+		} else {
+			return nil, fmt.Errorf("Unable to parse key/value pair: %q", line)
+		}
+	}
+
+	return data, nil
 }

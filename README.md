@@ -9,6 +9,7 @@ Vault Client
 
 * Makes secrets from `generic` backends easy accessible
 * Features auto completion for `bash`
+* Lock secrets from being edited concurrently through [Consul's session API](https://www.consul.io/docs/internals/sessions.html)
 
 Demo
 ----
@@ -36,11 +37,19 @@ Configuration
 -------------
 The configuration happens through a simple yaml file.
 ```
-$ echo "host: 127.0.0.1
-port: 8200
-token: password
-tls: true
-verify_tls: true" >  ~/.vaultrc
+$ echo "vault:
+  host: 127.0.0.1
+  port: 8200
+  token: password
+  tls: true
+  verify_tls: true
+consul: 
+  lock_kv_root: vault-client
+  host: 127.0.0.1
+  port: 8500
+  token: password
+  tls: true
+  verify_tls: true" >  ~/.vaultrc
 $ chmod 600 ~/.vaultrc
 ```
 

@@ -8,6 +8,20 @@ import (
 )
 
 type Config struct {
+	Consul ConsulConfig `yaml:"consul"`
+	Vault  VaultConfig  `yaml:"vault"`
+}
+
+type ConsulConfig struct {
+	Host       string `yaml:"host"`
+	Port       int    `yaml:"port"`
+	Token      string `yaml:"token"`
+	TLS        bool   `yaml:"tls"`
+	VerifyTLS  bool   `yaml:"verify_tls"`
+	LockKVRoot string `yaml:"lock_kv_root"`
+}
+
+type VaultConfig struct {
 	Host      string `yaml:"host"`
 	Port      int    `yaml:"port"`
 	Token     string `yaml:"token"`
@@ -19,11 +33,20 @@ func LoadConfig() error {
 
 	// Configuration default values
 	cfg = Config{
-		Host:      "127.0.0.1",
-		Port:      8200,
-		Token:     "password",
-		TLS:       true,
-		VerifyTLS: true,
+		Consul: ConsulConfig{
+			Host:      "127.0.0.1",
+			Port:      8500,
+			Token:     "password",
+			TLS:       true,
+			VerifyTLS: true,
+		},
+		Vault: VaultConfig{
+			Host:      "127.0.0.1",
+			Port:      8200,
+			Token:     "password",
+			TLS:       true,
+			VerifyTLS: true,
+		},
 	}
 
 	usr, err := user.Current()
