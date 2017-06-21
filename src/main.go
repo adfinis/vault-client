@@ -21,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = InitializeClient(cfg)
+	err = InitializeClient()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
@@ -37,7 +37,7 @@ func main() {
 	os.Exit(exitStatus)
 }
 
-func InitializeClient(cfg Config) error {
+func InitializeClient() error {
 
 	protocol := "http"
 	if cfg.TLS {
@@ -57,7 +57,7 @@ func InitializeClient(cfg Config) error {
 
 	var err error
 
-	vc, err = vault.NewClient(&vcfg)
+	vc, err = vault.NewClient(&config)
 	if err != nil {
 		return err
 	}
