@@ -16,7 +16,7 @@ func TestInsert(t *testing.T) {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	err = InitializeClient(cfg)
+	err = InitializeClient()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
