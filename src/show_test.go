@@ -21,7 +21,7 @@ func TestShow(t *testing.T) {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	c := &ShowCommand{Ui: ui}
 
 	t.Run("ShowNonexistentSecret", func(t *testing.T) {

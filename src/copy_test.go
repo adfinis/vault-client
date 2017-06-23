@@ -21,7 +21,7 @@ func TestCopy(t *testing.T) {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	c := &CopyCommand{Ui: ui}
 
 	t.Run("TooFewArgs", func(t *testing.T) {
