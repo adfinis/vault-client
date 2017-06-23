@@ -21,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = InitializeClient(cfg)
+	err = InitializeClient()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
@@ -37,34 +37,29 @@ func main() {
 	os.Exit(exitStatus)
 }
 
-func InitializeClient(cfg Config) error {
+func InitializeClient() error {
 
-	var protocol string
-
+	protocol := "http"
 	if cfg.TLS {
 		protocol = "https"
-	} else {
-		protocol = "http"
 	}
 
 	tr := &http.Transport{}
 
 	if !cfg.VerifyTLS {
-		tr = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
+		tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
-	vcfg := vault.Config{
+	config := vault.Config{
 		Address:    fmt.Sprintf("%v://%v:%v", protocol, cfg.Host, cfg.Port),
 		HttpClient: &http.Client{Transport: tr},
 	}
 
 	var err error
 
-	vc, err = vault.NewClient(&vcfg)
+	vc, err = vault.NewClient(&config)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		return err
 	}
 
 	vc.SetToken(cfg.Token)

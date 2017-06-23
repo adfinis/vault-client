@@ -16,12 +16,12 @@ func TestList(t *testing.T) {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	err = InitializeClient(cfg)
+	err = InitializeClient()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	c := &ListCommand{Ui: ui}
 
 	t.Run("ListSecretsInEmptyBackend", func(t *testing.T) {
