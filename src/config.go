@@ -11,21 +11,25 @@ import (
 )
 
 type Config struct {
-	Host      string `yaml:"host"`
-	Port      int    `yaml:"port"`
-	Token     string `yaml:"token"`
-	TLS       bool   `yaml:"tls"`
-	VerifyTLS bool   `yaml:"verify_tls"`
+	Host        string `yaml:"host"`
+	Port        int    `yaml:"port"`
+	Token       string `yaml:"token"`
+	TLS         bool   `yaml:"tls"`
+	VerifyTLS   bool   `yaml:"verify_tls"`
+	AuthMethod  string `yaml:"auth_method"`
+	AuthBackend string `yaml:"auth_backend"`
 }
 
 func LoadConfig() error {
 
 	cfg = Config{
-		Host:      "127.0.0.1",
-		Port:      8200,
-		Token:     "password",
-		TLS:       true,
-		VerifyTLS: true,
+		Host:        "127.0.0.1",
+		Port:        8200,
+		Token:       "password",
+		TLS:         true,
+		VerifyTLS:   true,
+		AuthMethod:  "token",
+		AuthBackend: "token",
 	}
 
 	usr, err := user.Current()
@@ -59,4 +63,15 @@ func LoadConfig() error {
 	}
 
 	return nil
+}
+
+func ComposeUrl() string {
+
+	protocol := "http"
+	if cfg.TLS {
+		protocol = "https"
+	}
+
+	return fmt.Sprintf("%v://%v:%v", protocol, cfg.Host, cfg.Port)
+
 }
