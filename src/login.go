@@ -16,22 +16,15 @@ func (c *LoginCommand) Run(args []string) int {
 		return 1
 	}
 
-	var am AuthBackend
-
-	switch cfg.AuthBackend {
-	case "ldap":
-		am = LDAPAuth{c.Ui}
-	case "token":
-		am = TokenAuth{c.Ui}
-	}
-
 	var err error
 
-	cfg.Token, err = am.Ask()
+	cfg.Token, err = GetAuthenticationToken(c.Ui)
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("Unable to retrieve token: %q", err))
 		return 1
 	}
+
+	fmt.Println(cfg.Token)
 
 	return 0
 }
