@@ -114,10 +114,17 @@ func UpdateConfigToken(token string) error {
 
 func GetConfigPath() (string, error) {
 
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
+	path := os.Getenv("VAULT_CLIENT_CONFIG")
 
-	return usr.HomeDir + "/.vaultrc", nil
+	if path != "" {
+		return path, nil
+	} else {
+
+		usr, err := user.Current()
+		if err != nil {
+			return "", err
+		}
+
+		return usr.HomeDir + "/.vaultrc", nil
+	}
 }
