@@ -30,6 +30,8 @@ func (c *LoginCommand) Run(args []string) int {
 		return 1
 	}
 
+	c.Ui.Output(fmt.Sprintf("\nAutomatically stored the retrieved token in %q", cfg.Path))
+
 	return 0
 }
 

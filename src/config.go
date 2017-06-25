@@ -18,6 +18,7 @@ type Config struct {
 	VerifyTLS   bool   `yaml:"verify_tls"`
 	AuthMethod  string `yaml:"auth_method"`
 	AuthBackend string `yaml:"auth_backend"`
+	Path        string
 }
 
 func LoadConfig() error {
@@ -32,12 +33,14 @@ func LoadConfig() error {
 		AuthBackend: "token",
 	}
 
-	path, err := GetConfigPath()
+	var err error
+
+	cfg.Path, err = GetConfigPath()
 	if err != nil {
 		return err
 	}
 
-	file, err := os.Stat(path)
+	file, err := os.Stat(cfg.Path)
 	if err != nil {
 		return err
 	}
@@ -50,7 +53,7 @@ func LoadConfig() error {
 		return fmt.Errorf("Your ~/.vaultrc is accessible for others (chmod 700 ~/.vaultrc)")
 	}
 
-	content, err := ioutil.ReadFile(path)
+	content, err := ioutil.ReadFile(cfg.Path)
 	if err != nil {
 		return err
 	}
