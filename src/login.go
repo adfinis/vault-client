@@ -18,13 +18,17 @@ func (c *LoginCommand) Run(args []string) int {
 
 	var err error
 
-	cfg.Token, err = GetAuthenticationToken(c.Ui)
+	token, err := GetAuthenticationToken(c.Ui)
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("Unable to retrieve token: %q", err))
 		return 1
 	}
 
-	fmt.Println(cfg.Token)
+	err = UpdateConfigToken(token)
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Unable to retrieve token: %q", err))
+		return 1
+	}
 
 	return 0
 }

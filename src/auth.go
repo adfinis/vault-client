@@ -11,15 +11,20 @@ import (
 )
 
 type VaultAuthenticationResponse struct {
-	LeaseID       string  `json:"lease_id"`
-	Renewable     bool    `json:"renewable"`
-	LeaseDuration int     `json:"lease_duration"`
-	Data          *string `json:"data"`
+	RequestID     string   `json:"request_id"`
+	LeaseID       string   `json:"lease_id"`
+	Renewable     bool     `json:"renewable"`
+	LeaseDuration int      `json:"lease_duration"`
+	Data          struct{} `json:"data"`
+	WrapInfo      *string  `json:"wrap_info"`
+	Warnings      *string  `json:"warnings"`
 	Auth          struct {
 		ClientToken string   `json:"client_token"`
+		Accessor    string   `json:"accessor"`
 		Policies    []string `json:"policies"`
 		Metadata    struct {
 			Username string `json:"username`
+			Policies string `json:"username`
 		}
 		LeaseDuration int  `json:"lease_duration"`
 		Renewable     bool `json:"renewable"`
@@ -56,7 +61,7 @@ func GetAuthenticationToken(ui cli.Ui) (string, error) {
 	}
 
 	var data VaultAuthenticationResponse
-	err = json.Unmarshal(body, data)
+	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return "", fmt.Errorf("Unable to parse request body", err)
 	}

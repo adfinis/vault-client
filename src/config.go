@@ -32,12 +32,10 @@ func LoadConfig() error {
 		AuthBackend: "token",
 	}
 
-	usr, err := user.Current()
+	path, err := GetConfigPath()
 	if err != nil {
 		return err
 	}
-
-	path := usr.HomeDir + "/.vaultrc"
 
 	file, err := os.Stat(path)
 	if err != nil {
@@ -74,4 +72,52 @@ func ComposeUrl() string {
 
 	return fmt.Sprintf("%v://%v:%v", protocol, cfg.Host, cfg.Port)
 
+}
+
+// Update the token in the configuration file
+func UpdateConfigToken(token string) error {
+
+	path, err := GetConfigPath()
+	if err != nil {
+		return err
+	}
+
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	token_found := false
+
+	lines := strings.Split(string(content), "\n")
+
+	for i, line := range lines {
+		if strings.HasPrefix(line, "token:") {
+			lines[i] = "token: " + token
+			token_found = true
+		}
+	}
+
+	if !token_found {
+		lines = append(lines, "token: "+token)
+
+	}
+
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile(path, []byte(output), 0600)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetConfigPath() (string, error) {
+
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	return usr.HomeDir + "/.vaultrc", nil
 }
