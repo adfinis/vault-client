@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	vault "github.com/hashicorp/vault/api"
 	"github.com/mitchellh/cli"
@@ -19,7 +19,11 @@ func GetAuthenticationToken(ui cli.Ui) (string, error) {
 	// Currently supported authentication backends
 	switch cfg.AuthBackend {
 	case "token":
-		return ui.AskSecret("Token:")
+		token, err := ui.AskSecret("Token:")
+		if err != nil {
+			return "", fmt.Errorf("Unable to parse input: %q", err)
+		}
+		return token, nil
 	case "ldap":
 		am = LDAPAuth{ui}
 	}
@@ -49,30 +53,20 @@ func GetAuthenticationToken(ui cli.Ui) (string, error) {
 	return secret.Auth.ClientToken, nil
 }
 
-// Interface to easily add new authentication backends.
-type AuthBackend interface {
-	Ask() (*http.Request, error)
-}
+func GetTokenTTL(token string) (time.Time, error) {
 
-type LDAPAuth struct {
-	ui cli.Ui
-}
+	var valid_until time.Time
 
-func (l LDAPAuth) Ask() (*http.Request, error) {
-
-	username, err := l.ui.Ask("Username:")
+	// Don't login, just show information about the current token.
+	secret, err := vc.Auth().Token().Lookup(cfg.Token)
 	if err != nil {
-		return new(http.Request), err
+		return valid_until, err
 	}
 
-	password, err := l.ui.AskSecret("Password:")
+	ttl, err := secret.Data["ttl"].(json.Number).Int64()
 	if err != nil {
-		return new(http.Request), err
+		return valid_until, err
 	}
 
-	body := []byte(fmt.Sprintf(`{"password":"%s"}`, password))
-	url := fmt.Sprintf("%v/v1/auth/%s/login/%s", ComposeUrl(), cfg.AuthMethod, username)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
-
-	return req, nil
+	return time.Unix(time.Now().Unix()+ttl, 0), nil
 }
