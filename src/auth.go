@@ -7,29 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	vault "github.com/hashicorp/vault/api"
 	"github.com/mitchellh/cli"
 )
-
-type VaultAuthenticationResponse struct {
-	RequestID     string   `json:"request_id"`
-	LeaseID       string   `json:"lease_id"`
-	Renewable     bool     `json:"renewable"`
-	LeaseDuration int      `json:"lease_duration"`
-	Data          struct{} `json:"data"`
-	WrapInfo      *string  `json:"wrap_info"`
-	Warnings      *string  `json:"warnings"`
-	Auth          struct {
-		ClientToken string   `json:"client_token"`
-		Accessor    string   `json:"accessor"`
-		Policies    []string `json:"policies"`
-		Metadata    struct {
-			Username string `json:"username`
-			Policies string `json:"username`
-		}
-		LeaseDuration int  `json:"lease_duration"`
-		Renewable     bool `json:"renewable"`
-	}
-}
 
 // Authenticate against vault using the configured method and return a valid token
 func GetAuthenticationToken(ui cli.Ui) (string, error) {
@@ -60,13 +40,13 @@ func GetAuthenticationToken(ui cli.Ui) (string, error) {
 		return "", fmt.Errorf("Unable to parse request body", err)
 	}
 
-	var data VaultAuthenticationResponse
-	err = json.Unmarshal(body, &data)
+	var secret vault.Secret
+	err = json.Unmarshal(body, &secret)
 	if err != nil {
 		return "", fmt.Errorf("Unable to parse request body", err)
 	}
 
-	return data.Auth.ClientToken, nil
+	return secret.Auth.ClientToken, nil
 }
 
 // Interface to easily add new authentication backends.
