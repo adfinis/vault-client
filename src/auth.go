@@ -11,7 +11,8 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-// Authenticate against vault using the configured method and return a valid token
+// Authenticate against Vault using the configured method/auth backend and
+// return a valid token
 func GetAuthenticationToken(ui cli.Ui) (string, error) {
 
 	var am AuthBackend
@@ -53,6 +54,7 @@ func GetAuthenticationToken(ui cli.Ui) (string, error) {
 	return secret.Auth.ClientToken, nil
 }
 
+// Returns the the time when a token will expire
 func GetTokenTTL(token string) (time.Time, error) {
 
 	var valid_until time.Time

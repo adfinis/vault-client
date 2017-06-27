@@ -60,9 +60,13 @@ func (c *LoginCommand) Run(args []string) int {
 func (c *LoginCommand) Help() string {
 	return `Usage: vc login 
 
-  Authenticates against Vault thorugh your prefered method 
+  Authenticates against Vault through your prefered method 
   e.g (username/password, ldap) and stores the retrieved
   Token in your ~/.vaultrc
+
+Options:
+
+  -s                             Shows when your current token will expire
 `
 }
 

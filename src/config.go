@@ -11,12 +11,14 @@ import (
 )
 
 type Config struct {
-	Host        string `yaml:"host"`
-	Port        int    `yaml:"port"`
-	Token       string `yaml:"token"`
-	TLS         bool   `yaml:"tls"`
-	VerifyTLS   bool   `yaml:"verify_tls"`
-	AuthMethod  string `yaml:"auth_method"`
+	Host      string `yaml:"host"`
+	Port      int    `yaml:"port"`
+	Token     string `yaml:"token"`
+	TLS       bool   `yaml:"tls"`
+	VerifyTLS bool   `yaml:"verify_tls"`
+	// Name of authentication method
+	AuthMethod string `yaml:"auth_method"`
+	// Type of the authentication backend
 	AuthBackend string `yaml:"auth_backend"`
 	Path        string
 }
