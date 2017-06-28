@@ -16,26 +16,33 @@ type Config struct {
 	Token     string `yaml:"token"`
 	TLS       bool   `yaml:"tls"`
 	VerifyTLS bool   `yaml:"verify_tls"`
+	// Name of authentication method
+	AuthMethod string `yaml:"auth_method"`
+	// Type of the authentication backend
+	AuthBackend string `yaml:"auth_backend"`
+	Path        string
 }
 
 func LoadConfig() error {
 
 	cfg = Config{
-		Host:      "127.0.0.1",
-		Port:      8200,
-		Token:     "password",
-		TLS:       true,
-		VerifyTLS: true,
+		Host:        "127.0.0.1",
+		Port:        8200,
+		Token:       "password",
+		TLS:         true,
+		VerifyTLS:   true,
+		AuthMethod:  "token",
+		AuthBackend: "token",
 	}
 
-	usr, err := user.Current()
+	var err error
+
+	cfg.Path, err = GetConfigPath()
 	if err != nil {
 		return err
 	}
 
-	path := usr.HomeDir + "/.vaultrc"
-
-	file, err := os.Stat(path)
+	file, err := os.Stat(cfg.Path)
 	if err != nil {
 		return err
 	}
@@ -48,7 +55,7 @@ func LoadConfig() error {
 		return fmt.Errorf("Your ~/.vaultrc is accessible for others (chmod 700 ~/.vaultrc)")
 	}
 
-	content, err := ioutil.ReadFile(path)
+	content, err := ioutil.ReadFile(cfg.Path)
 	if err != nil {
 		return err
 	}
@@ -59,4 +66,70 @@ func LoadConfig() error {
 	}
 
 	return nil
+}
+
+func ComposeUrl() string {
+
+	protocol := "http"
+	if cfg.TLS {
+		protocol = "https"
+	}
+
+	return fmt.Sprintf("%v://%v:%v", protocol, cfg.Host, cfg.Port)
+
+}
+
+// Update the token in the configuration file
+func UpdateConfigToken(token string) error {
+
+	path, err := GetConfigPath()
+	if err != nil {
+		return err
+	}
+
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	token_found := false
+
+	lines := strings.Split(string(content), "\n")
+
+	for i, line := range lines {
+		if strings.HasPrefix(line, "token:") {
+			lines[i] = "token: " + token
+			token_found = true
+		}
+	}
+
+	if !token_found {
+		lines = append(lines, "token: "+token)
+
+	}
+
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile(path, []byte(output), 0600)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetConfigPath() (string, error) {
+
+	path := os.Getenv("VAULT_CLIENT_CONFIG")
+
+	if path != "" {
+		return path, nil
+	} else {
+
+		usr, err := user.Current()
+		if err != nil {
+			return "", err
+		}
+
+		return usr.HomeDir + "/.vaultrc", nil
+	}
 }

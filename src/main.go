@@ -39,11 +39,6 @@ func main() {
 
 func InitializeClient() error {
 
-	protocol := "http"
-	if cfg.TLS {
-		protocol = "https"
-	}
-
 	tr := &http.Transport{}
 
 	if !cfg.VerifyTLS {
@@ -51,7 +46,7 @@ func InitializeClient() error {
 	}
 
 	config := vault.Config{
-		Address:    fmt.Sprintf("%v://%v:%v", protocol, cfg.Host, cfg.Port),
+		Address:    ComposeUrl(),
 		HttpClient: &http.Client{Transport: tr},
 	}
 
@@ -113,6 +108,11 @@ func LoadCli() *cli.CLI {
 		},
 		"ls": func() (cli.Command, error) {
 			return &ListCommand{
+				Ui: ui,
+			}, nil
+		},
+		"login": func() (cli.Command, error) {
+			return &LoginCommand{
 				Ui: ui,
 			}, nil
 		},

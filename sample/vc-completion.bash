@@ -11,7 +11,7 @@ _vc()
 		;;
 	esac
     else
-        COMPREPLY=($(compgen -W "show insert cp mv rm edit ls" -- $cur))
+        COMPREPLY=($(compgen -W "login show insert cp mv rm edit ls" -- $cur))
     fi
 }
 complete -F _vc vc
