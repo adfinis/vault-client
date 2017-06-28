@@ -8,6 +8,7 @@ Vault Client
 [pass](https://www.passwordstore.org/).
 
 * Makes secrets from `generic` backends easy accessible
+* Support for comments through `#` line prefix
 * Features auto completion for `bash`
 
 Demo
