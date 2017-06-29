@@ -131,21 +131,18 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 				// If line is a comment, store it's value for later composition into it's
 				// own k/v pair
 				if comment != "" {
-					fmt.Printf("Parse multiline comment %q\n", line)
-					// If a comment is alreay set, then assume that the comment spanns
+					// If a comment is alreay set, then assume that the comment spans
 					// across multiple lines
 					comment += "\n" + line
 				} else {
-					fmt.Printf("Parse comment %q\n", line)
 					comment = strings.TrimPrefix(line, "#")
 				}
 
 			} else {
-				fmt.Printf("Parse secret %q\n", line)
-				// If a line is k/v pair then split it up
+				// If a line is a k/v pair then split it up
 				kv_pair := strings.Split(line, ": ")
 
-				// Check wheter a comment to this secret was stored
+				// Check whether a related comment to this secret was stored
 				if comment != "" {
 					data[kv_pair[0]+"_comment"] = comment
 					comment = ""
