@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -35,9 +36,16 @@ func GetAuthenticationToken(ui cli.Ui) (string, error) {
 		return "", fmt.Errorf("Unable to parse input: %q", err)
 	}
 
-	res, err := http.DefaultClient.Do(req)
-	if err != nil || res.StatusCode != 200 {
-		return "", fmt.Errorf("Unable retrieve authentication token from vault (status code %v)", res.StatusCode)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: !cfg.VerifyTLS},
+	}
+	client := &http.Client{Transport: tr}
+
+	res, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("Unable retrieve authentication token from vault %q", err)
+	} else if res.StatusCode != 200 {
+		return "", fmt.Errorf("Unable retrieve authentication token from vault (status code %q)", res.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(res.Body)

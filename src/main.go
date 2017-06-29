@@ -39,10 +39,8 @@ func main() {
 
 func InitializeClient() error {
 
-	tr := &http.Transport{}
-
-	if !cfg.VerifyTLS {
-		tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: !cfg.VerifyTLS},
 	}
 
 	config := vault.Config{
