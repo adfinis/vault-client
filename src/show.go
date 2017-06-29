@@ -82,6 +82,8 @@ func (c *ShowCommand) Run(args []string) int {
 			secret.Data[key])
 	}
 
+	c.Ui.Output(output)
+
 	return 0
 }
 

@@ -65,7 +65,7 @@ func TestShow(t *testing.T) {
 			t.Fatalf("expected error:\n%s\n\nto include: %q", actual, expectedErr)
 		}
 
-		expectedOutput := "key:    value"
+		expectedOutput := "key: value"
 		if actual := ui.OutputWriter.String(); !strings.Contains(actual, expectedOutput) {
 			t.Fatalf("expected output:\n%s\n\nto include: %q", actual, expectedOutput)
 		}
