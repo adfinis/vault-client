@@ -18,5 +18,5 @@ build: install-deps  ## Compiles the program
 	GOPATH=$$(pwd) go build -o vc src/*.go
 
 install: build  ## Install vault-client
-	install -Dm755 vc /usr/bin/vc
-	install -Dm644 sample/vc-completion.bash /usr/share/bash-completion/completion/vc
+	install -Dm755 vc $(DESTDIR)$(bindir)/vc
+	install -Dm644 sample/vc-completion.bash $(DESTDIR)$(datarootdir)/bash-completion/completion/vc
