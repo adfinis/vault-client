@@ -39,7 +39,7 @@ func TestEdit(t *testing.T) {
 				"valid_key1":         "valid_value",
 				"valid_key1_comment": " This is a valid comment",
 				"valid_key2":         "valid_value",
-				"valid_key2_comment": " Multiline\n# comment",
+				"valid_key2_comment": " Multiline\n comment",
 			},
 		}
 

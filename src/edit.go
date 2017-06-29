@@ -133,7 +133,7 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 				if comment != "" {
 					// If a comment is alreay set, then assume that the comment spans
 					// across multiple lines
-					comment += "\n" + line
+					comment += "\n" + strings.TrimPrefix(line, "#")
 				} else {
 					comment = strings.TrimPrefix(line, "#")
 				}
@@ -174,7 +174,14 @@ func WriteSecretToFile(file *os.File, kv_pairs map[string]interface{}) {
 	for _, key := range keys {
 		// Write comment right before the related k/v pair
 		if value, exists := kv_pairs[key+"_comment"].(string); exists {
-			file.WriteString("#" + value + "\n")
+
+			if multilineComments := strings.Split(value, "\n"); len(multilineComments) > 1 {
+				for _, comment := range multilineComments {
+					file.WriteString("#" + comment + "\n")
+				}
+			} else {
+				file.WriteString("#" + value + "\n")
+			}
 		}
 		file.WriteString(key + ": " + kv_pairs[key].(string) + "\n")
 	}
