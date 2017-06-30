@@ -1,5 +1,6 @@
 before_script:
   - vault server -dev -dev-root-token-id="password" &
+  - sed -i 's/^token:.*/token: password/g' ~/.vaultrc
 
 stages:
   - test

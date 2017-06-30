@@ -1,5 +1,7 @@
-host: 127.0.0.1 
+host: 127.0.0.1
 port: 8200
-token: password
+token: $PASSWORD
+auth_backend: token
+auth_method: token
 tls: false
 verify_tls: false
