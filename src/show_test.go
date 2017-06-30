@@ -95,9 +95,9 @@ func TestShow(t *testing.T) {
 			t.Fatalf("expected error:\n%s\n\nto include: %q", actual, expectedErr)
 		}
 
-		expectedOutput := `a_key:    value
-b_key:    value
-c_key:    value`
+		expectedOutput := `a_key: value
+b_key: value
+c_key: value`
 		if actual := ui.OutputWriter.String(); !strings.Contains(actual, expectedOutput) {
 			t.Fatalf("expected output:\n%s\n\nto include: %q", actual, expectedOutput)
 		}
