@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/mitchellh/cli"
 )
 
@@ -62,10 +63,10 @@ func (c *ShowCommand) Run(args []string) int {
 
 			if multilineComments := strings.Split(value, "\n"); len(multilineComments) > 1 {
 				for _, comment := range multilineComments {
-					output += "#" + comment + "\n"
+					output += color.YellowString("#" + comment + "\n")
 				}
 			} else {
-				output += "#" + value + "\n"
+				output += color.YellowString("#" + value + "\n")
 			}
 		}
 
