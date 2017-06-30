@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/mitchellh/cli"
 )
 
@@ -36,50 +37,44 @@ func (c *ShowCommand) Run(args []string) int {
 		return 1
 	}
 
-	var MaxKeyLen = 0
+	var maxKeyLength = 0
 	var keys []string
-	var has_comments = false
 
 	for key, _ := range secret.Data {
-		// Get length of the largest key in order to calculate the
-		// "whitespace padded" representation of `show`
-		if KeyLen := len(key); KeyLen > MaxKeyLen {
-			MaxKeyLen = KeyLen + 4
-		}
 
-		if strings.HasSuffix(key, "_comment") {
-			// Check whether a secret contains comments
-			has_comments = true
-		} else {
+		// Ignore k/v pair that are comments
+		if !strings.HasSuffix(key, "_comment") {
+
+			// Get the length of the largest key in order to use the largest offset for the
+			// "whitespace padded" representation.
+			if len(key) > maxKeyLength {
+				maxKeyLength = len(key) + 2
+			}
+
 			keys = append(keys, key)
 		}
 	}
-
-	// Sort secrets lexicographically
 	sort.Strings(keys)
 
-	// Only pad K/V pairs when a secret containts no comments
-	kv_output_format := "%-" + fmt.Sprint(MaxKeyLen) + "v %v\n"
-	if has_comments || len(secret.Data) == 1 {
-		kv_output_format = "%v %v\n"
-	}
-
-	output := ""
-
+	var output string
 	for _, key := range keys {
+
 		if value, exists := secret.Data[key+"_comment"].(string); exists {
 
 			if multilineComments := strings.Split(value, "\n"); len(multilineComments) > 1 {
 				for _, comment := range multilineComments {
-					output += "#" + comment + "\n"
+					output += color.YellowString("#" + comment + "\n")
 				}
 			} else {
-				output += "#" + value + "\n"
+				output += color.YellowString("#" + value + "\n")
 			}
 		}
-		output += fmt.Sprintf(kv_output_format,
+
+		output += fmt.Sprintf(
+			"%-"+fmt.Sprint(maxKeyLength)+"v%v\n",
 			key+":",
-			secret.Data[key])
+			strings.TrimSpace(secret.Data[key].(string)),
+		)
 	}
 
 	c.Ui.Output(output)
