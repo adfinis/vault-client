@@ -41,14 +41,15 @@ func (c *ShowCommand) Run(args []string) int {
 
 	for key, _ := range secret.Data {
 
-		// Get the length of the largest key in order to use the largest offset for the
-		// "whitespace padded" representation.
-		if len(key) > maxKeyLength {
-			maxKeyLength = len(key) + 2
-		}
-
 		// Ignore k/v pair that are comments
 		if !strings.HasSuffix(key, "_comment") {
+
+			// Get the length of the largest key in order to use the largest offset for the
+			// "whitespace padded" representation.
+			if len(key) > maxKeyLength {
+				maxKeyLength = len(key) + 2
+			}
+
 			keys = append(keys, key)
 		}
 	}
