@@ -82,6 +82,11 @@ func ComposeUrl() string {
 // Update the token in the configuration file
 func UpdateConfigToken(token string) error {
 
+	// Reauthenticate against Vault and update in-memory config
+	vc.SetToken(token)
+	vc.Auth()
+	cfg.Token = token
+
 	path, err := GetConfigPath()
 	if err != nil {
 		return err
