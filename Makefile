@@ -1,10 +1,20 @@
 .PHONY: help test build install install-deps
 .DEFAULT_GOAL := help
 
-INSTALL := install
-DESTDIR := /usr/local
-datarootdir := $(DESTDIR)/share
-bindir := $(DESTDIR)/bin
+INSTALL		:= install
+
+# Common prefix for installation directories.
+# NOTE: This directory must exist when you start the install.
+prefix = /usr/local
+datarootdir = $(prefix)/share
+datadir = $(datarootdir)
+exec_prefix = $(prefix)
+# Where to put the executable for the command 'gcc'.
+bindir = $(exec_prefix)/bin
+# Where to put the directories used by the compiler.
+libexecdir = $(exec_prefix)/libexec
+# Where to put the Info files.
+infodir = $(datarootdir)/info
 
 GO_DEPENDENCIES := gopkg.in/yaml.v2 github.com/hashicorp/vault/api github.com/mitchellh/cli github.com/fatih/color
 
@@ -23,5 +33,5 @@ build: install-deps  ## Compiles the program
 	GOPATH=$$(pwd) go build -o vc src/*.go
 
 install: build  ## Install vault-client
-	$(INSTALL) -Dm755 vc $(bindir)/vc
-	$(INSTALL) -Dm644 sample/vc-completion.bash $(datarootdir)/bash-completion/completions/vc
+	$(INSTALL) -Dm755 vc $(DESTDIR)$(bindir)/vc
+	$(INSTALL) -Dm644 sample/vc-completion.bash $(DESTDIR)$(datarootdir)/bash-completion/completions/vc
