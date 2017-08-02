@@ -28,6 +28,7 @@ func (c *EditCommand) Run(args []string) int {
 
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
+		c.Ui.Error(CheckError(err, err.Error()))
 		return 1
 	}
 

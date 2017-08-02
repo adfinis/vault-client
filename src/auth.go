@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"strings"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -79,4 +80,23 @@ func GetTokenTTL(token string) (time.Time, error) {
 	}
 
 	return time.Unix(time.Now().Unix()+ttl, 0), nil
+}
+
+
+// Check whether a generic error occured because:
+//   1. The token expired
+//   2. Vault is down
+// Otherwise return an alternative text that got passed by the caller
+func CheckError(err error, alternate_text string) string {
+
+	switch true {
+	case strings.HasSuffix(err.Error(), "getsockopt: connection refused"):
+		return "Unable to connect to Vault"
+	case strings.HasPrefix(err.Error(), "Error making API request."):
+		return "Your token has expired. Please reauthenticate."
+	case strings.HasSuffix(err.Error(), "request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)"):
+		return "Connection to Vault has timed out"
+	default:
+		return fmt.Sprintf("Unkown error occured: %q", err.Error())
+	}
 }

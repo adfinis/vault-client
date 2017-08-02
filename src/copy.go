@@ -19,7 +19,7 @@ func (c *CopyCommand) Run(args []string) int {
 
 	secret, err := vc.Logical().Read(args[0])
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Unable to find source secret: %q", err))
+		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to find source secret: %q", err)))
 		return 1
 	}
 
