@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/tls"
+	"time"
 	"fmt"
 	"net/http"
+	"strings"
 	"os"
 
 	vault "github.com/hashicorp/vault/api"
@@ -56,7 +58,23 @@ func InitializeClient() error {
 	}
 
 	vc.SetToken(cfg.Token)
+	vc.SetClientTimeout(1 * time.Second)
 	vc.Auth()
+
+	// Check wheter the set token is still valid by looking it up
+	// If the token expired vault will return "Error making API request."
+	_, err = vc.Auth().Token().LookupSelf()
+	if err != nil {
+		switch true {
+		case strings.HasSuffix(err.Error(), "getsockopt: connection refused"):
+			return fmt.Errorf("Unable to connect to vault")
+		case strings.HasPrefix(err.Error(), "Error making API request."):
+			return fmt.Errorf("Your token has expired. Please reauthenticate.")
+		default:
+			return fmt.Errorf(fmt.Sprintf("Unkown error occured: %q", err.Error()))
+		}
+	}
+
 
 	return nil
 }
