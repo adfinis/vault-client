@@ -7,3 +7,5 @@
 /src/github.com/
 /src/gopkg.in/
 /vc
+/*.deb
+/build/

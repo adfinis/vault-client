@@ -1,6 +1,9 @@
 .PHONY: help test build install install-deps
 .DEFAULT_GOAL := help
 
+PKGNAME=vault-client
+VERSION=1.1.2
+
 INSTALL := install
 DESTDIR := /usr/local
 datarootdir := $(DESTDIR)/share
@@ -25,3 +28,18 @@ build: install-deps  ## Compiles the program
 install: build  ## Install vault-client
 	$(INSTALL) -Dm755 vc $(bindir)/vc
 	$(INSTALL) -Dm644 sample/vc-completion.bash $(datarootdir)/bash-completion/completions/vc
+
+deb: ## Create .deb package
+	mkdir -p build/usr/bin build/etc/bash_completion.d
+	install -Dm755 vc build/usr/bin/vc
+	install -Dm644 sample/vc-completion.bash build/etc/bash_completion.d/vc
+	fpm \
+	  -s dir \
+	  -t deb \
+          -n $(PKGNAME) \
+	  -v $(VERSION) \
+	  -d bash-completion \
+          -C build \
+          .
+
+artifacts: build deb
