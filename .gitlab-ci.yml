@@ -4,7 +4,7 @@ before_script:
 
 stages:
   - test
-  - artifacts
+  - build
 
 run-test:
   stage: test
@@ -14,7 +14,8 @@ run-test:
 build:
   stage: build
   script:
-    - make build
+    - make artifacts
   artifacts:
     paths:
       - vc
+      - vault-client_1.1.2_amd64.deb
