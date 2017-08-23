@@ -8,6 +8,9 @@ pkgbot:
   packages:
     debian:
       jessie:
-        - build/apt-jessie-*deb
+        - vault-client*deb
       wheezy: 
-        - build/apt-wheezy-*deb
+        - vault-client*deb
+      stretch:
+        - vault-client*deb
+
