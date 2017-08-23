@@ -11,5 +11,3 @@ pkgbot:
         - vault-client*deb
       wheezy: 
         - vault-client*deb
-      stretch:
-        - vault-client*deb
