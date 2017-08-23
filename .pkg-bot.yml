@@ -4,7 +4,7 @@ pkgbot:
   branches:
     - packaging
   stages: 
-    - package
+    - build
   packages:
     debian:
       jessie:
@@ -13,4 +13,3 @@ pkgbot:
         - vault-client*deb
       stretch:
         - vault-client*deb
-
