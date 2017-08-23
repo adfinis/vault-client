@@ -2,6 +2,7 @@
 .DEFAULT_GOAL := help
 
 PKGNAME=vault-client
+DESCRIPTION="A command-line interface to HashiCorp's Vault "
 VERSION=1.1.2
 
 INSTALL := install
@@ -36,10 +37,11 @@ deb: ## Create .deb package
 	fpm \
 	  -s dir \
 	  -t deb \
-          -n $(PKGNAME) \
+	  -n $(PKGNAME) \
 	  -v $(VERSION) \
+	  -d $(DESCRIPTION)
 	  -d bash-completion \
-          -C build \
-          .
+	  -C build \
+	  .
 
 artifacts: build deb
