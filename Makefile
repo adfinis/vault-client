@@ -39,7 +39,7 @@ deb: ## Create .deb package
 	  -t deb \
 	  -n $(PKGNAME) \
 	  -v $(VERSION) \
-	  -d $(DESCRIPTION)
+	  -d $(DESCRIPTION) \
 	  -d bash-completion \
 	  -C build \
 	  .
