@@ -12,7 +12,7 @@ run-test:
   script:
     - cp sample/vaultrc ~/.vaultrc
     - chmod 700 ~/.vaultrc
-    - make test-all
+    - make test
 
 build:
   stage: build
