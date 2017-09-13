@@ -40,8 +40,8 @@ The configuration happens through a simple yaml file.
 $ echo "host: 127.0.0.1
 port: 8200
 token: password
-backend_method: <ldap|token>
-backend_auth: <ldap|token>
+auth_method: <ldap|token>
+auth_backend: <ldap|token>
 tls: true
 verify_tls: true" >  ~/.vaultrc
 $ chmod 600 ~/.vaultrc
