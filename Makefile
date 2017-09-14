@@ -35,3 +35,4 @@ build: install-deps  ## Compiles the program
 install: build  ## Install vault-client
 	$(INSTALL) -Dm755 vc $(DESTDIR)$(bindir)/vc
 	$(INSTALL) -Dm644 sample/vc-completion.bash $(DESTDIR)$(datarootdir)/bash-completion/completions/vc
+	$(INSTALL) -Dm644 sample/vc-completion.zsh $(DESTDIR)$(datarootdir)/zsh/site-functions/_vc

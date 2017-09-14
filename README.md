@@ -9,7 +9,7 @@ Vault Client
 
 * Makes secrets from `generic` backends easy accessible
 * Support for comments through `#` line prefix
-* Features auto completion for `bash`
+* Features auto completion for `bash` and `zsh`
 
 Demo
 ----
