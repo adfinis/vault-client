@@ -30,7 +30,7 @@ install: build  ## Install vault-client
 	$(INSTALL) -Dm755 vc $(bindir)/vc
 	$(INSTALL) -Dm644 sample/vc-completion.bash $(datarootdir)/bash-completion/completions/vc
 
-deb: ## Create .deb package
+deb:  ## Create .deb package
 	mkdir -p build/usr/bin build/etc/bash_completion.d
 	install -Dm755 vc build/usr/bin/vc
 	install -Dm644 sample/vc-completion.bash build/etc/bash_completion.d/vc

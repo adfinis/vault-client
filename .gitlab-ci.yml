@@ -11,7 +11,7 @@ run-test:
   stage: test
   script:
     - cp sample/vaultrc ~/.vaultrc
-    - chmod 700 ~/.vaultrc
+    - chmod 0600 ~/.vaultrc
     - make test
 
 build:
@@ -21,4 +21,4 @@ build:
   artifacts:
     paths:
       - vc
-      - vault-client_1.1.2_amd64.deb
+      - vault-client_*_amd64.deb
