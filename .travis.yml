@@ -8,7 +8,7 @@ before_install:
   - export VAULT_VERSION=0.8.1
   - cp sample/vaultrc ~/.vaultrc
   - chmod 700 ~/.vaultrc
-  - sudo apt-get update -qqy && sudo apt-get install -qqy unzip ruby ruby-dev rubygems build-essential
+  - sudo apt-get update -qqy && sudo apt-get install -qqy unzip ruby ruby-dev rubygems-integration build-essential
   - sudo gem install --no-ri --no-rdoc fpm
   - wget -O - https://keybase.io/hashicorp/pgp_keys.asc | gpg --import
   - wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig
