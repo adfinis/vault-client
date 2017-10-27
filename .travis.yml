@@ -8,8 +8,6 @@ before_install:
   - export VAULT_VERSION=0.8.1
   - cp sample/vaultrc ~/.vaultrc
   - chmod 700 ~/.vaultrc
-  - sudo apt-get update -qqy && sudo apt-get install -qqy unzip ruby ruby-dev rubygems-integration build-essential
-  - sudo gem install --no-ri --no-rdoc fpm
   - wget -O - https://keybase.io/hashicorp/pgp_keys.asc | gpg --import
   - wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig
   - wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip
@@ -28,7 +26,7 @@ before_script:
 
 script:
   - make test
-  - make artifacts
+  - make build
 
 deploy:
   provider: releases
@@ -36,7 +34,6 @@ deploy:
     secure: H514x+zUvUtT2xeJmqIanrMXtsvGroA/Bk5eAwNkVbz+2bL9Aj9tUSSpTvMka34lo+IdBDK0lpITDNooEmdlyCPRtJx/wAavSjKTquq+K0isXXCv4m/w7L3Gxhd5Xwq1ZEg4gB3cyQOoRTSLeopWqtx1EJ0gnF7MZL4IQ93zJL44YYBDVCp0mPoBOKmk6k6+vWhvmkHyepIGNriXM4kwm69mByrRdUb+YTyYl0wBKV7jW6zuoiWX2srFkArP1tyB4kc0Gc8+SIzoB1DykFw99cmN2H3DS5acG6omindaWE1izFodsv/Ar5B66mKCxd8AVPNGNe548PJl9FEW2pMF2P++4oQthu5vBDFx85h7ecvj/xBpObnPldxty4gn371ee0BwCDwTMoXKBupwJmbOwD5UE5ibxGNVj3n0YnrwCJ+56eUzibuCsLTI2/TvfJLp/nKKZtFFS5xmhvIGJR5+xT6+th8dG5DgpGGYJ36sTEwBcGBplSvqsF3iSb1dE8hpNN8/rTi43z5kPm4B90+17nS7LzvfLQozMChLru5xRD2WocwzkNUa9qST2qaJbkSvq9UMZepkKsuvC7qtoQhMesbwzFgTNEBsqHp61q6RIJYOh9enHjf6ejyE2YAksQLTOBK/hOp/RL1vk6f7lhpL/UX5lHVnE+qUZrQ8e+KQcfM=
   file:
     - vc
-    - vault-client_*_amd64.deb
   on:
     tags: true
 
