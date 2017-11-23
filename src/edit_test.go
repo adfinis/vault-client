@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/mitchellh/cli"
@@ -22,33 +21,18 @@ func TestEdit(t *testing.T) {
 
 	t.Run("ParseInvalidSecretFile", func(t *testing.T) {
 
-		test_files := map[string]string{
-			"invalid_secret_multiple_delimiters.txt": "Unable to parse key/value pair \"valid_key: invalid: _value\". Make sure that there is only/at least one \":\" in it",
-			"invalid_secret_missing_delimiter.txt":   "Unable to parse key/value pair \"invalid_line\". Make sure that there is only/at least one \":\" in it",
+		test_files := map[string]error{
+			"invalid_secret_multiple_delimiters.txt": ErrMultipleDelimiters,
+			"invalid_secret_missing_delimiter.txt": ErrMissingDelimiter,
+			"invalid_secret_duplicated_key.txt": ErrDuplicateKey,
 		}
 
 		for file, expected := range test_files {
 
 			_, actual := c.ParseSecret("../sample/tests/secrets/" + file)
 
-			if !strings.Contains(actual.Error(), expected) {
-				t.Fatalf("\nexpected:\t%s\nto include:\t%s", actual, expected)
-			}
-		}
-	})
-
-	t.Run("ParseSecretFileWithDuplicateKey", func(t *testing.T) {
-
-		test_files := map[string]string{
-			"invalid_secret_duplicated_key.txt": "Secret identifier \"duplicate_key\" is used multiple times. Please make sure that the key only is used once.",
-		}
-
-		for file, expected := range test_files {
-
-			_, actual := c.ParseSecret("../sample/tests/secrets/" + file)
-
-			if !strings.Contains(actual.Error(), expected) {
-				t.Fatalf("\nexpected:\t%s\nto include:\t%s", actual, expected)
+			if actual != expected {
+				t.Fatalf("\nexpected:\t%v\nto include:\t%v", actual, expected)
 			}
 		}
 	})

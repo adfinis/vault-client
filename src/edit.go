@@ -185,7 +185,7 @@ func (c *EditCommand) ParseSecret(path string) (map[string]interface{}, error) {
 				} else if len(kv_pair) > 2 {
 					c.Ui.Output(fmt.Sprintf("Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it ", line))
 					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
-					return data, ErrMissingDelimiter
+					return data, ErrMultipleDelimiters
 				}
 
 
