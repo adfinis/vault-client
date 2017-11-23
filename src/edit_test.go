@@ -5,8 +5,6 @@ import (
 	"os"
 	"reflect"
 	"testing"
-
-	"github.com/mitchellh/cli"
 )
 
 func TestEdit(t *testing.T) {
@@ -15,9 +13,6 @@ func TestEdit(t *testing.T) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
-
-	ui := cli.NewMockUi()
-	c := &EditCommand{Ui: ui}
 
 	t.Run("ParseInvalidSecretFile", func(t *testing.T) {
 
@@ -29,7 +24,7 @@ func TestEdit(t *testing.T) {
 
 		for file, expected := range test_files {
 
-			_, actual := c.ParseSecret("../sample/tests/secrets/" + file)
+			_, actual := ParseSecret("../sample/tests/secrets/" + file)
 
 			if actual != expected {
 				t.Fatalf("\nexpected:\t%v\nto include:\t%v", actual, expected)
@@ -50,7 +45,7 @@ func TestEdit(t *testing.T) {
 
 		for file, expected := range test_files {
 
-			actual, err := c.ParseSecret("../sample/tests/secrets/" + file)
+			actual, err := ParseSecret("../sample/tests/secrets/" + file)
 			if err != nil {
 				t.Fatalf("Unable to parse secret file: %q", err)
 			}

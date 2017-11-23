@@ -67,7 +67,7 @@ func (c *EditCommand) Run(args []string) int {
 			return 1
 		}
 
-		data, err = c.ParseSecret(file.Name())
+		data, err = ParseSecret(file.Name())
 		switch err {
 		case ErrDuplicateKey:
 			secret_is_valid = false
@@ -149,7 +149,7 @@ func EditFile(path string) error {
 // Lines not starting with "#" will be recognized as secrets. If the key identifier of a secret
 // multiple times the user will get a chance to reedit the secret
 //
-func (c *EditCommand) ParseSecret(path string) (map[string]interface{}, error) {
+func ParseSecret(path string) (map[string]interface{}, error) {
 
 	var data = make(map[string]interface{})
 	var comment string
@@ -178,12 +178,12 @@ func (c *EditCommand) ParseSecret(path string) (map[string]interface{}, error) {
 
 				kv_pair := strings.Split(line, ": ")
 				if len(kv_pair) < 2 {
-					c.Ui.Output(fmt.Sprintf("Unable to parse key/value pair %q. Make sure that there is at least one \": \" delimiter in it ", line))
+					fmt.Printf("Unable to parse key/value pair %q. Make sure that there is at least one \": \" delimiter in it ", line)
 					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
 					return data, ErrMissingDelimiter
 
 				} else if len(kv_pair) > 2 {
-					c.Ui.Output(fmt.Sprintf("Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it ", line))
+					fmt.Printf("Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it.", line)
 					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
 					return data, ErrMultipleDelimiters
 				}
@@ -201,7 +201,7 @@ func (c *EditCommand) ParseSecret(path string) (map[string]interface{}, error) {
 
 				// Check that key is not used multiple times
 				if _, already_used := data[key]; already_used {
-					c.Ui.Output(fmt.Sprintf("Secret identifier %q is used multiple times. Please make sure that the key only is used once.", key))
+					fmt.Printf("Secret identifier %q is used multiple times. Please make sure that the key only is used once.", key)
 					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
 					return data, ErrDuplicateKey
 
