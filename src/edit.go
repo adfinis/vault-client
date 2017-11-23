@@ -116,8 +116,18 @@ func EditFile(path string) error {
 	return nil
 }
 
-// Parses k/v pairs and comments from a secret file
+// Validates and parses key/value pairs and comments from the temporary secret file
+//
+// Lines starting with "#" will be recognized as comments. Following lines that also start with "#"
+// will be appended to the first.
+//
+// Lines not starting with "#" will be recognized as secrets. If the key identifier of a secret
+// multiple times the user will get a chance to reedit the secret
+//
 func ParseSecret(path string) (map[string]interface{}, error) {
+
+	var data = make(map[string]interface{})
+	var comment string
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -125,40 +135,57 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 	}
 
 	scanner := bufio.NewScanner(file)
-
-	var data = make(map[string]interface{})
-	var comment string
-
 	for scanner.Scan() {
 
 		line := scanner.Text()
 
 		if line != "" {
+
 			if strings.HasPrefix(line, "#") {
-				// If line is a comment, store it's value for later composition into it's
-				// own k/v pair
+
 				if comment != "" {
-					// If a comment is alreay set, then assume that the comment spans
-					// across multiple lines
 					comment += "\n" + strings.TrimPrefix(line, "#")
 				} else {
 					comment = strings.TrimPrefix(line, "#")
 				}
 
 			} else {
-				// If a line is a k/v pair then split it up
-				kv_pair := strings.Split(line, ": ")
 
-				// Check whether a related comment to this secret was stored
+				kv_pair := strings.Split(line, ": ")
+				if len(kv_pair) != 2 {
+					return nil, fmt.Errorf("Unable to parse key/value pair %q. Make sure that there is only  \":\" in it ", line)
+				}
+
+				key, value := kv_pair[0], kv_pair[1]
+
+				// Check whether the previous lines have been parsed as comment. If
+				// thats case then compose a key/value pair with a unique identifier
+				// by adding a suffix.
 				if comment != "" {
-					data[kv_pair[0]+"_comment"] = comment
+					data[key+"_comment"] = comment
 					comment = ""
 				}
 
-				if len(kv_pair) != 2 {
-					return nil, fmt.Errorf("Unable to parse key/value pair: %q", line)
+				// Check that key is not used multiple times
+				if _, already_used := data[key]; already_used {
+
+					fmt.Printf("Secret identifier %q is used multiple times. Please make sure that the key only is used once.\n", key)
+					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
+
+					err = EditFile(path)
+					if err != nil {
+						return data, err
+					}
+
+					data, err = ParseSecret(path)
+					if err != nil {
+						return data, err
+					}
+
+				} else {
+					data[key] = value
 				}
-				data[kv_pair[0]] = kv_pair[1]
+
 			}
 		}
 	}
