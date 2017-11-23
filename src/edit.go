@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -16,6 +17,12 @@ import (
 type EditCommand struct {
 	Ui cli.Ui
 }
+
+var (
+	ErrDuplicateKey       = errors.New("duplicate key found in secret")
+	ErrMultipleDelimiters = errors.New("multiple \": \" delimiters found in secret")
+	ErrMissingDelimiter   = errors.New("\": \" delimiter missing secret")
+)
 
 func (c *EditCommand) Run(args []string) int {
 
@@ -46,16 +53,34 @@ func (c *EditCommand) Run(args []string) int {
 
 	WriteSecretToFile(file, secret.Data)
 
-	err = EditFile(file.Name())
-	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Unable to edit secret file %q", err))
-		return 1
-	}
+	var data map[string]interface{}
+	secret_is_valid := false
 
-	data, err := ParseSecret(file.Name())
-	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Secret has not changed %q", err))
-		return 1
+	// Re-open the text editor if the parsing of the resulting secret fails
+	for(secret_is_valid == false) {
+
+		secret_is_valid = true
+
+		err = EditFile(file.Name())
+		if err != nil {
+			c.Ui.Error(fmt.Sprintf("Unable to edit secret file %q", err))
+			return 1
+		}
+
+		data, err = c.ParseSecret(file.Name())
+		switch err {
+		case ErrDuplicateKey:
+			secret_is_valid = false
+		case ErrMultipleDelimiters:
+			secret_is_valid = false
+		case ErrMissingDelimiter:
+			secret_is_valid = false
+		default:
+			if err != nil {
+				c.Ui.Error(fmt.Sprintf("Secret has not changed %q", err))
+				return 1
+			}
+		}
 	}
 
 	if len(data) == 0 {
@@ -124,7 +149,7 @@ func EditFile(path string) error {
 // Lines not starting with "#" will be recognized as secrets. If the key identifier of a secret
 // multiple times the user will get a chance to reedit the secret
 //
-func ParseSecret(path string) (map[string]interface{}, error) {
+func (c *EditCommand) ParseSecret(path string) (map[string]interface{}, error) {
 
 	var data = make(map[string]interface{})
 	var comment string
@@ -152,9 +177,17 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 			} else {
 
 				kv_pair := strings.Split(line, ": ")
-				if len(kv_pair) != 2 {
-					return nil, fmt.Errorf("Unable to parse key/value pair %q. Make sure that there is only/at least one \":\" in it ", line)
+				if len(kv_pair) < 2 {
+					c.Ui.Output(fmt.Sprintf("Unable to parse key/value pair %q. Make sure that there is at least one \": \" delimiter in it ", line))
+					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
+					return data, ErrMissingDelimiter
+
+				} else if len(kv_pair) > 2 {
+					c.Ui.Output(fmt.Sprintf("Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it ", line))
+					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
+					return data, ErrMissingDelimiter
 				}
+
 
 				key, value := kv_pair[0], kv_pair[1]
 
@@ -168,19 +201,9 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 
 				// Check that key is not used multiple times
 				if _, already_used := data[key]; already_used {
-
-					fmt.Printf("Secret identifier %q is used multiple times. Please make sure that the key only is used once.\n", key)
+					c.Ui.Output(fmt.Sprintf("Secret identifier %q is used multiple times. Please make sure that the key only is used once.", key))
 					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
-
-					err = EditFile(path)
-					if err != nil {
-						return data, err
-					}
-
-					data, err = ParseSecret(path)
-					if err != nil {
-						return data, err
-					}
+					return data, ErrDuplicateKey
 
 				} else {
 					data[key] = value
