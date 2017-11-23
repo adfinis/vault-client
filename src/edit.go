@@ -153,7 +153,7 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 
 				kv_pair := strings.Split(line, ": ")
 				if len(kv_pair) != 2 {
-					return nil, fmt.Errorf("Unable to parse key/value pair %q. Make sure that there is only  \":\" in it ", line)
+					return nil, fmt.Errorf("Unable to parse key/value pair %q. Make sure that there is only/at least one \":\" in it ", line)
 				}
 
 				key, value := kv_pair[0], kv_pair[1]

@@ -18,8 +18,8 @@ func TestEdit(t *testing.T) {
 	t.Run("ParseInvalidSecretFile", func(t *testing.T) {
 
 		test_files := map[string]string{
-			"invalid_secret1.txt": "Unable to parse key/value pair: \"valid_key: invalid: _value\"",
-			"invalid_secret2.txt": "Unable to parse key/value pair: \"invalid_line\"",
+			"invalid_secret1.txt": "Unable to parse key/value pair \"valid_key: invalid: _value\". Make sure that there is only/at least one \":\" in it",
+			"invalid_secret2.txt": "Unable to parse key/value pair \"invalid_line\". Make sure that there is only/at least one \":\" in it",
 		}
 
 		for file, expected := range test_files {
@@ -27,7 +27,7 @@ func TestEdit(t *testing.T) {
 			_, actual := ParseSecret("../sample/tests/secrets/" + file)
 
 			if !strings.Contains(actual.Error(), expected) {
-				t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
+				t.Fatalf("\nexpected:\t%s\nto include:\t%s", actual, expected)
 			}
 		}
 	})
