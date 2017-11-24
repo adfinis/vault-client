@@ -69,12 +69,11 @@ func (c *EditCommand) Run(args []string) int {
 
 		data, err = ParseSecret(file.Name())
 		switch err {
-		case ErrDuplicateKey:
+		case ErrDuplicateKey, ErrMultipleDelimiters, ErrMissingDelimiter:
 			secret_is_valid = false
-		case ErrMultipleDelimiters:
-			secret_is_valid = false
-		case ErrMissingDelimiter:
-			secret_is_valid = false
+			// Let the user read the error in his shell before re-opening his editor to
+			// correct the mistake
+			_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
 		default:
 			if err != nil {
 				c.Ui.Error(fmt.Sprintf("Secret has not changed %q", err))
@@ -168,6 +167,8 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 
 			if strings.HasPrefix(line, "#") {
 
+				// If a comment is alreay set, then assume that the comment spans
+				// across multiple lines
 				if comment != "" {
 					comment += "\n" + strings.TrimPrefix(line, "#")
 				} else {
@@ -178,13 +179,11 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 
 				kv_pair := strings.Split(line, ": ")
 				if len(kv_pair) < 2 {
-					fmt.Printf("Unable to parse key/value pair %q. Make sure that there is at least one \": \" delimiter in it ", line)
-					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
+					fmt.Fprintf(os.Stderr, "Unable to parse key/value pair %q. Make sure that there is at least one \": \" delimiter in it ", line)
 					return data, ErrMissingDelimiter
 
 				} else if len(kv_pair) > 2 {
-					fmt.Printf("Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it.", line)
-					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
+					fmt.Fprintf(os.Stderr, "Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it.", line)
 					return data, ErrMultipleDelimiters
 				}
 
@@ -201,8 +200,7 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 
 				// Check that key is not used multiple times
 				if _, already_used := data[key]; already_used {
-					fmt.Printf("Secret identifier %q is used multiple times. Please make sure that the key only is used once.", key)
-					_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
+					fmt.Fprintf(os.Stderr, "Secret identifier %q is used multiple times. Please make sure that the key only is used once.", key)
 					return data, ErrDuplicateKey
 
 				} else {
