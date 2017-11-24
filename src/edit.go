@@ -54,12 +54,12 @@ func (c *EditCommand) Run(args []string) int {
 	WriteSecretToFile(file, secret.Data)
 
 	var data map[string]interface{}
-	secret_is_valid := false
+	secretIsValid := false
 
 	// Re-open the text editor if the parsing of the resulting secret fails
-	for(secret_is_valid == false) {
+	for(secretIsValid == false) {
 
-		secret_is_valid = true
+		secretIsValid = true
 
 		err = EditFile(file.Name())
 		if err != nil {
@@ -70,7 +70,7 @@ func (c *EditCommand) Run(args []string) int {
 		data, err = ParseSecret(file.Name())
 		switch err {
 		case ErrDuplicateKey, ErrMultipleDelimiters, ErrMissingDelimiter:
-			secret_is_valid = false
+			secretIsValid = false
 			// Let the user read the error in his shell before re-opening his editor to
 			// correct the mistake
 			_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
@@ -177,18 +177,18 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 
 			} else {
 
-				kv_pair := strings.Split(line, ": ")
-				if len(kv_pair) < 2 {
+				kvPair := strings.Split(line, ": ")
+				if len(kvPair) < 2 {
 					fmt.Fprintf(os.Stderr, "Unable to parse key/value pair %q. Make sure that there is at least one \": \" delimiter in it ", line)
 					return data, ErrMissingDelimiter
 
-				} else if len(kv_pair) > 2 {
+				} else if len(kvPair) > 2 {
 					fmt.Fprintf(os.Stderr, "Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it.", line)
 					return data, ErrMultipleDelimiters
 				}
 
 
-				key, value := kv_pair[0], kv_pair[1]
+				key, value := kvPair[0], kvPair[1]
 
 				// Check whether the previous lines have been parsed as comment. If
 				// thats case then compose a key/value pair with a unique identifier
