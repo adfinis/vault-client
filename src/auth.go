@@ -44,9 +44,9 @@ func GetAuthenticationToken(ui cli.Ui) (string, error) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("Unable retrieve authentication token from vault %q", err)
+		return "", fmt.Errorf("Unable to retrieve authentication token from vault %q", err)
 	} else if res.StatusCode != 200 {
-		return "", fmt.Errorf("Unable retrieve authentication token from vault (status code %q)", res.StatusCode)
+		return "", fmt.Errorf("Unable to retrieve authentication token from vault (status code %d)", res.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(res.Body)

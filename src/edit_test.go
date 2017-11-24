@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -17,17 +16,18 @@ func TestEdit(t *testing.T) {
 
 	t.Run("ParseInvalidSecretFile", func(t *testing.T) {
 
-		test_files := map[string]string{
-			"invalid_secret1.txt": "Unable to parse key/value pair: \"valid_key: invalid: _value\"",
-			"invalid_secret2.txt": "Unable to parse key/value pair: \"invalid_line\"",
+		test_files := map[string]error{
+			"invalid_secret_multiple_delimiters.txt": ErrMultipleDelimiters,
+			"invalid_secret_missing_delimiter.txt": ErrMissingDelimiter,
+			"invalid_secret_duplicated_key.txt": ErrDuplicateKey,
 		}
 
 		for file, expected := range test_files {
 
 			_, actual := ParseSecret("../sample/tests/secrets/" + file)
 
-			if !strings.Contains(actual.Error(), expected) {
-				t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
+			if actual != expected {
+				t.Fatalf("\nexpected:\t%v\nto include:\t%v", actual, expected)
 			}
 		}
 	})
@@ -51,7 +51,8 @@ func TestEdit(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(actual, expected) {
-				t.Fatalf("\nexpected:\n%q\n\nto include:\n%q", expected, actual)
+				t.Fatalf("\nexpected:\t%s\nto include:\t%s", actual, expected)
+				t.Fatalf("\nexpected:\n%q\n\nto include:\n%q", actual, expected)
 			}
 		}
 	})
