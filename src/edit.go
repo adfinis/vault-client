@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -16,6 +17,12 @@ import (
 type EditCommand struct {
 	Ui cli.Ui
 }
+
+var (
+	ErrDuplicateKey       = errors.New("duplicate key found in secret")
+	ErrMultipleDelimiters = errors.New("multiple \": \" delimiters found in secret")
+	ErrMissingDelimiter   = errors.New("\": \" delimiter missing secret")
+)
 
 func (c *EditCommand) Run(args []string) int {
 
@@ -46,16 +53,33 @@ func (c *EditCommand) Run(args []string) int {
 
 	WriteSecretToFile(file, secret.Data)
 
-	err = EditFile(file.Name())
-	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Unable to edit secret file %q", err))
-		return 1
-	}
+	var data map[string]interface{}
+	secretIsValid := false
 
-	data, err := ParseSecret(file.Name())
-	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Secret has not changed %q", err))
-		return 1
+	// Re-open the text editor if the parsing of the resulting secret fails
+	for(secretIsValid == false) {
+
+		secretIsValid = true
+
+		err = EditFile(file.Name())
+		if err != nil {
+			c.Ui.Error(fmt.Sprintf("Unable to edit secret file %q", err))
+			return 1
+		}
+
+		data, err = ParseSecret(file.Name())
+		switch err {
+		case ErrDuplicateKey, ErrMultipleDelimiters, ErrMissingDelimiter:
+			secretIsValid = false
+			// Let the user read the error in his shell before re-opening his editor to
+			// correct the mistake
+			_, _, _ = bufio.NewReader(os.Stdin).ReadLine()
+		default:
+			if err != nil {
+				c.Ui.Error(fmt.Sprintf("Secret has not changed %q", err))
+				return 1
+			}
+		}
 	}
 
 	if len(data) == 0 {
@@ -116,8 +140,18 @@ func EditFile(path string) error {
 	return nil
 }
 
-// Parses k/v pairs and comments from a secret file
+// Validates and parses key/value pairs and comments from the temporary secret file
+//
+// Lines starting with "#" will be recognized as comments. Following lines that also start with "#"
+// will be appended to the first.
+//
+// Lines not starting with "#" will be recognized as secrets. If the key identifier of a secret
+// multiple times the user will get a chance to reedit the secret
+//
 func ParseSecret(path string) (map[string]interface{}, error) {
+
+	var data = make(map[string]interface{})
+	var comment string
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -125,40 +159,54 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 	}
 
 	scanner := bufio.NewScanner(file)
-
-	var data = make(map[string]interface{})
-	var comment string
-
 	for scanner.Scan() {
 
 		line := scanner.Text()
 
 		if line != "" {
+
 			if strings.HasPrefix(line, "#") {
-				// If line is a comment, store it's value for later composition into it's
-				// own k/v pair
+
+				// If a comment is alreay set, then assume that the comment spans
+				// across multiple lines
 				if comment != "" {
-					// If a comment is alreay set, then assume that the comment spans
-					// across multiple lines
 					comment += "\n" + strings.TrimPrefix(line, "#")
 				} else {
 					comment = strings.TrimPrefix(line, "#")
 				}
 
 			} else {
-				// If a line is a k/v pair then split it up
-				kv_pair := strings.Split(line, ": ")
 
-				// Check whether a related comment to this secret was stored
+				kvPair := strings.Split(line, ": ")
+				if len(kvPair) < 2 {
+					fmt.Fprintf(os.Stderr, "Unable to parse key/value pair %q. Make sure that there is at least one \": \" delimiter in it ", line)
+					return data, ErrMissingDelimiter
+
+				} else if len(kvPair) > 2 {
+					fmt.Fprintf(os.Stderr, "Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it.", line)
+					return data, ErrMultipleDelimiters
+				}
+
+
+				key, value := kvPair[0], kvPair[1]
+
+				// Check whether the previous lines have been parsed as comment. If
+				// thats case then compose a key/value pair with a unique identifier
+				// by adding a suffix.
 				if comment != "" {
-					data[kv_pair[0]+"_comment"] = comment
+					data[key+"_comment"] = comment
 					comment = ""
 				}
 
-				if len(kv_pair) != 2 {
-					return nil, fmt.Errorf("Unable to parse key/value pair: %q", line)
+				// Check that key is not used multiple times
+				if _, already_used := data[key]; already_used {
+					fmt.Fprintf(os.Stderr, "Secret identifier %q is used multiple times. Please make sure that the key only is used once.", key)
+					return data, ErrDuplicateKey
+
+				} else {
+					data[key] = value
 				}
-				data[kv_pair[0]] = kv_pair[1]
+
 			}
 		}
 	}
