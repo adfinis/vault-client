@@ -45,13 +45,13 @@ func (c *ListCommand) Run(args []string) int {
 	if recursiveFlag {
 		paths, err = RecursivelyListSecrets(path)
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Unable to recursively list path: %q", err))
+			c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to recursively list path: %q", err)))
 			return 1
 		}
 	} else {
 		paths, err = ListSecrets(path)
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Unable to list path: %q", err))
+			c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to list path: %q", err)))
 			return 1
 		}
 	}

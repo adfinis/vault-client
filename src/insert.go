@@ -32,7 +32,7 @@ func (c *InsertCommand) Run(args []string) int {
 
 	_, err := vc.Logical().Write(path, data)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Unable to write secret: %q", err))
+		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to write secret: %q", err)))
 		return 1
 	}
 

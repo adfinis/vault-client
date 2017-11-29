@@ -28,7 +28,7 @@ func (c *ShowCommand) Run(args []string) int {
 
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("There was an error while retrieving the secret: %q", err))
+		c.Ui.Error(CheckError(err, fmt.Sprintf("There was an error while retrieving the secret: %q", err)))
 		return 1
 	}
 
