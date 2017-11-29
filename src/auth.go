@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/url"
 	"crypto/tls"
 	"strings"
 	"encoding/json"
@@ -84,19 +85,28 @@ func GetTokenTTL(token string) (time.Time, error) {
 
 
 // Check whether a generic error occured because:
-//   1. The token expired
-//   2. Vault is down
-// Otherwise return an alternative text that got passed by the caller
+//   a. the token expired
+//   b. vault is unreachable
+//
+// Otherwise return an default text that got passed by the caller
 func CheckError(err error, alternate_text string) string {
 
-	switch true {
-	case strings.HasSuffix(err.Error(), "getsockopt: connection refused"):
+	// This error can be provoked by simply shutting down the vault services
+	switch err.(type) {
+	case *url.Error:
 		return "Unable to connect to Vault"
-	case strings.HasPrefix(err.Error(), "Error making API request."):
-		return "Your token has expired. Please reauthenticate."
-	case strings.HasSuffix(err.Error(), "request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)"):
-		return "Connection to Vault has timed out"
-	default:
-		return fmt.Sprintf("Unkown error occured: %q", err.Error())
 	}
+
+	if strings.HasSuffix(err.Error(), "request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)") {
+		return "Connection to Vault has timed out"
+	}
+
+	// Vault uses fmt.Errorf to compose the errorString so we can't do a type check. This error
+	// can be provoked by expiring a token thorugh `vault revoke-token` and doing some generic
+	// operation such as reading or writing a secret.
+	if strings.HasPrefix(err.Error(), "Error making API request.") {
+		return "Your token has expired. Please reauthenticate."
+	}
+
+	return fmt.Sprintf("Unkown error occured: [%T] %q", err, err.Error())
 }
