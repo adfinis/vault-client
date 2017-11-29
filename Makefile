@@ -1,9 +1,9 @@
-.PHONY: help test build install install-deps
+.$PHONY: help test build install install-deps
 .DEFAULT_GOAL := help
 
 PKGNAME=vault-client
 DESCRIPTION="A command-line interface to HashiCorp's Vault "
-VERSION=1.1.2
+VERSION=1.1.3
 
 INSTALL		:= install
 
