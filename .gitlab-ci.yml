@@ -1,6 +1,8 @@
 before_script:
   - vault server -dev -dev-root-token-id="password" &
   - sed -i 's/^token:.*/token: password/g' ~/.vaultrc
+  - make install-deps
+
 
 stages:
   - test
@@ -9,13 +11,15 @@ stages:
 run-test:
   stage: test
   script:
-    - make test-all
-
+    - cp sample/vaultrc ~/.vaultrc
+    - chmod 0600 ~/.vaultrc
+    - make test
 
 build:
   stage: build
   script:
-    - make build
+    - make artifacts
   artifacts:
     paths:
       - vc
+      - vault-client_*_amd64.deb

@@ -19,7 +19,7 @@ func (c *MoveCommand) Run(args []string) int {
 
 	secret, err := vc.Logical().Read(args[0])
 	if err != nil {
-		fmt.Println("Unable to find source secret")
+		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to find source secret: %q", err)))
 		return 1
 	}
 

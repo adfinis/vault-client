@@ -9,7 +9,7 @@ Vault Client
 
 * Makes secrets from `generic` backends easy accessible
 * Support for comments through `#` line prefix
-* Features auto completion for `bash`
+* Features auto completion for `bash` and `zsh`
 
 Demo
 ----
@@ -44,6 +44,7 @@ auth_backend: <ldap|token>
 auth_method: <ldap|token>
 tls: <true|false>
 verify_tls: <true|false>" >  ~/.vaultrc
+
 $ chmod 600 ~/.vaultrc
 ```
 

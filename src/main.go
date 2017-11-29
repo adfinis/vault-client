@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"time"
 	"os"
 
 	vault "github.com/hashicorp/vault/api"
@@ -46,6 +47,7 @@ func InitializeClient() error {
 	config := vault.Config{
 		Address:    ComposeUrl(),
 		HttpClient: &http.Client{Transport: tr},
+		Timeout: 3 * time.Second,
 	}
 
 	var err error
@@ -57,7 +59,6 @@ func InitializeClient() error {
 
 	vc.SetToken(cfg.Token)
 	vc.Auth()
-
 	return nil
 }
 
@@ -69,7 +70,7 @@ func LoadCli() *cli.CLI {
 		ErrorWriter: os.Stderr,
 	}
 
-	c := cli.NewCLI("vc", "1.1.1")
+	c := cli.NewCLI("vc", "1.1.2")
 	c.Args = os.Args[1:]
 
 	c.Commands = map[string]cli.CommandFactory{
