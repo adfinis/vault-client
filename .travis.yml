@@ -7,6 +7,7 @@ sudo: required
 before_install:
   - export VAULT_VERSION=0.8.1
   - cp sample/vaultrc ~/.vaultrc
+  - sed -i 's/^token:.*/token:\ password/g' ~/.vaultrc
   - chmod 700 ~/.vaultrc
   - wget -O - https://keybase.io/hashicorp/pgp_keys.asc | gpg --import
   - wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig

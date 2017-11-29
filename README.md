@@ -37,13 +37,14 @@ Configuration
 -------------
 The configuration happens through a simple yaml file.
 ```
-$ echo "host: 127.0.0.1
-port: 8200
-token: password
-auth_method: <ldap|token>
+$ echo "host: HOST (default: 127.0.0.1)
+port: PORT (default: 8200)
+token: PASSWORD
 auth_backend: <ldap|token>
-tls: true
-verify_tls: true" >  ~/.vaultrc
+auth_method: <ldap|token>
+tls: <true|false>
+verify_tls: <true|false>" >  ~/.vaultrc
+
 $ chmod 600 ~/.vaultrc
 ```
 
