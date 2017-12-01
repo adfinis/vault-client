@@ -6,6 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	"strings"
+	"strconv"
 )
 
 type ListCommand struct {
@@ -164,11 +165,61 @@ func ListKvBackends() ([]string, error) {
 
 	var backends []string
 
+	version, err := GetVaultVersion()
+	if err != nil {
+		return nil, err
+	}
+
+	// With the 0.8.3 release of vault the "generic" backend was renamed to "kv". For backwards
+	// compatibility choose the right one based on the vault version.
+	var backendType string
+	if (version.Minor == 8 && version.Patch == 3) || version.Minor >= 9 || version.Major > 1 {
+		backendType = "kv"
+	} else {
+		backendType = "generic"
+	}
+
 	for x, i := range mounts {
-		if i.Type == "kv" {
+		if i.Type == backendType {
 			backends = append(backends, x)
 		}
 	}
 
 	return backends, nil
+}
+
+type VaultVersion struct {
+	Major int
+	Minor int
+	Patch int
+}
+
+// Returns the vault version (major, minor, patch)
+func GetVaultVersion() (VaultVersion, error) {
+
+	var version VaultVersion
+
+	health, err := vc.Sys().Health()
+	if err != nil {
+		return version, err
+	}
+
+	versionString := strings.Split(health.Version, ".")
+
+	version.Major, err = strconv.Atoi(versionString[0])
+	if err != nil {
+		return version, nil
+	}
+
+	version.Minor, err = strconv.Atoi(versionString[1])
+	if err != nil {
+		return version, nil
+	}
+
+	version.Patch, err = strconv.Atoi(versionString[2])
+	if err != nil {
+		return version, nil
+	}
+
+	return version, nil
 }
