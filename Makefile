@@ -1,4 +1,4 @@
-.$PHONY: help test build install install-deps
+.PHONY: help test build install install-deps
 .DEFAULT_GOAL := help
 
 PKGNAME=vault-client
