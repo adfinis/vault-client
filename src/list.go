@@ -126,7 +126,7 @@ func ListSecrets(path string) ([]string, error) {
 	// `vc` only cares about generic backends.
 	if path == "/" || path == "" {
 
-		items, err = ListGenericBackends()
+		items, err = ListKvBackends()
 		if err != nil {
 			return nil, err
 		}
@@ -154,8 +154,8 @@ func ListSecrets(path string) ([]string, error) {
 	return items, nil
 }
 
-// Returns the paths to all accessable generic backends.
-func ListGenericBackends() ([]string, error) {
+// Returns the paths to all of all kv backends.
+func ListKvBackends() ([]string, error) {
 
 	mounts, err := vc.Sys().ListMounts()
 	if err != nil {
@@ -165,7 +165,7 @@ func ListGenericBackends() ([]string, error) {
 	var backends []string
 
 	for x, i := range mounts {
-		if i.Type == "generic" {
+		if i.Type == "kv" {
 			backends = append(backends, x)
 		}
 	}
