@@ -126,7 +126,7 @@ func ListSecrets(path string) ([]string, error) {
 	// `vc` only cares about generic backends.
 	if path == "/" || path == "" {
 
-		items, err = ListGenericBackends()
+		items, err = ListKvBackends()
 		if err != nil {
 			return nil, err
 		}
@@ -154,8 +154,8 @@ func ListSecrets(path string) ([]string, error) {
 	return items, nil
 }
 
-// Returns the paths to all accessable generic backends.
-func ListGenericBackends() ([]string, error) {
+// Returns the paths to all of all kv backends.
+func ListKvBackends() ([]string, error) {
 
 	mounts, err := vc.Sys().ListMounts()
 	if err != nil {
@@ -164,11 +164,35 @@ func ListGenericBackends() ([]string, error) {
 
 	var backends []string
 
+	version, err := GetVaultVersion()
+	if err != nil {
+		return nil, err
+	}
+
+	backendType := "kv"
+
+	// With the 0.8.3 release of vault the "generic" backend was renamed to "kv". For backwards
+	// compatibility choose the right one based on the vault version.
+	if version < "0.8.3." {
+		backendType = "generic"
+	}
+
 	for x, i := range mounts {
-		if i.Type == "generic" {
+		if i.Type == backendType {
 			backends = append(backends, x)
 		}
 	}
 
 	return backends, nil
+}
+
+// Returns the vault version (major, minor, patch)
+func GetVaultVersion() (string, error) {
+
+	health, err := vc.Sys().Health()
+	if err != nil {
+		return health.Version, err
+	}
+
+	return health.Version, nil
 }

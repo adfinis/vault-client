@@ -3,7 +3,7 @@
 
 PKGNAME=vault-client
 DESCRIPTION="A command-line interface to HashiCorp's Vault "
-VERSION=1.1.2
+VERSION=1.1.3
 
 INSTALL		:= install
 
