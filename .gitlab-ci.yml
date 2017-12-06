@@ -1,5 +1,7 @@
 before_script:
   - 'vault server -dev -dev-root-token-id="password" &'
+  - 'cp sample/vaultrc ~/.vaultrc'
+  - 'chmod 0600 ~/.vaultrc'
   - 'sed -i "s/^token:.*/token: password/g" ~/.vaultrc'
   - make install-deps
 
@@ -11,8 +13,6 @@ stages:
 run-test:
   stage: test
   script:
-    - cp sample/vaultrc ~/.vaultrc
-    - chmod 0600 ~/.vaultrc
     - make test
 
 build:
