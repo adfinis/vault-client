@@ -164,35 +164,13 @@ func ListKvBackends() ([]string, error) {
 
 	var backends []string
 
-	version, err := GetVaultVersion()
-	if err != nil {
-		return nil, err
-	}
-
-	backendType := "kv"
-
-	// With the 0.8.3 release of vault the "generic" backend was renamed to "kv". For backwards
-	// compatibility choose the right one based on the vault version.
-	if version < "0.8.3." {
-		backendType = "generic"
-	}
-
 	for x, i := range mounts {
-		if i.Type == backendType {
+		// With the 0.8.3 release of vault the "generic" backend was renamed to "kv". For backwards
+		// compatibility consider both of them
+		if i.Type == "kv" || i.Type == "generic" {
 			backends = append(backends, x)
 		}
 	}
 
 	return backends, nil
-}
-
-// Returns the vault version (major, minor, patch)
-func GetVaultVersion() (string, error) {
-
-	health, err := vc.Sys().Health()
-	if err != nil {
-		return health.Version, err
-	}
-
-	return health.Version, nil
 }
