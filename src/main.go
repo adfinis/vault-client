@@ -70,7 +70,7 @@ func LoadCli() *cli.CLI {
 		ErrorWriter: os.Stderr,
 	}
 
-	c := cli.NewCLI("vc", "1.1.3")
+	c := cli.NewCLI("vc", "1.1.4")
 	c.Args = os.Args[1:]
 
 	c.Commands = map[string]cli.CommandFactory{
