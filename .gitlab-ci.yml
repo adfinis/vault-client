@@ -1,10 +1,25 @@
-before_script:
-  - 'vault server -dev -dev-root-token-id="password" &'
-  - 'cp sample/vaultrc ~/.vaultrc'
-  - 'chmod 0600 ~/.vaultrc'
-  - 'sed -i "s/^token:.*/token: password/g" ~/.vaultrc'
-  - make install-deps
+---
+# -*- coding: utf-8 -*-
 
+image: golang:1.10
+
+before_script:
+  - apt update && apt -qq install -y --no-install-recommends unzip
+  - export VAULT_VERSION=0.9.0
+  - wget -O - https://keybase.io/hashicorp/pgp_keys.asc | gpg --import
+  - wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig
+  - wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip
+  - wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS
+  - gpg --verify vault_${VAULT_VERSION}_SHA256SUMS.sig vault_${VAULT_VERSION}_SHA256SUMS
+  - bash -c "[[ \"$(sha256sum vault_${VAULT_VERSION}_linux_amd64.zip)\" == \"$(grep
+    vault_${VAULT_VERSION}_linux_amd64 vault_${VAULT_VERSION}_SHA256SUMS)\" ]] || exit
+    1"
+  - unzip vault_${VAULT_VERSION}_linux_amd64.zip -d /usr/local/bin
+  - cp sample/vaultrc ~/.vaultrc
+  - sed -i 's/^token:.*/token:\ password/g' ~/.vaultrc
+  - chmod 0600 ~/.vaultrc
+  - make install-deps
+  - vault server -dev -dev-root-token-id="password" &
 
 stages:
   - test
@@ -23,3 +38,5 @@ build:
     paths:
       - vc
       - vault-client_*_amd64.deb
+
+# vim: set ts=2 sw=2 tw=2 :
