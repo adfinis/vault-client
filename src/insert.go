@@ -22,7 +22,7 @@ func (c *InsertCommand) Run(args []string) int {
 	data := make(map[string]interface{})
 
 	for _, v := range args[1:] {
-		kvpair := strings.Split(v, "=")
+		kvpair := strings.SplitN(v, "=", 2)
 		if len(kvpair) < 2 || len(kvpair) > 2 {
 			c.Ui.Error(fmt.Sprintf("Invalid key/value arguments: %q", v))
 			return 1
