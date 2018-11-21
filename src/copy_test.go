@@ -63,7 +63,7 @@ func TestCopy(t *testing.T) {
 		data := make(map[string]interface{})
 		data["key"] = "value"
 
-		_, err = vc.Logical().Write("secret/existent", data)
+		_, err = vc.Write("secret/existent", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
@@ -83,7 +83,7 @@ func TestCopy(t *testing.T) {
 		}
 	})
 
-	_, err = vc.Logical().Delete("secret/destinationsecret")
+	_, err = vc.Delete("secret/destinationsecret")
 	if err != nil {
 		t.Fatalf("Unable to clean up test secret: %q", err)
 	}

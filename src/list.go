@@ -133,7 +133,7 @@ func ListSecrets(path string) ([]string, error) {
 
 	} else {
 
-		secret, err := vc.Logical().List(path)
+		secret, err := vc.List(path)
 		if err != nil {
 			return nil, err
 		}
@@ -157,7 +157,7 @@ func ListSecrets(path string) ([]string, error) {
 // Returns the paths to all of all kv backends.
 func ListKvBackends() ([]string, error) {
 
-	mounts, err := vc.Sys().ListMounts()
+	mounts, err := vc.Client.Sys().ListMounts()
 	if err != nil {
 		return nil, err
 	}

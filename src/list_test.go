@@ -49,7 +49,7 @@ func TestList(t *testing.T) {
 		data["key"] = "value"
 
 		for i := 1; i <= 3; i++ {
-			_, err = vc.Logical().Write(fmt.Sprintf("secret/secret%v", i), data)
+			_, err = vc.Write(fmt.Sprintf("secret/secret%v", i), data)
 			if err != nil {
 				t.Fatalf("Unable to write test secret: %q", err)
 			}
@@ -98,13 +98,13 @@ secret/secret3`
 	})
 
 	for i := 1; i <= 3; i++ {
-		_, err = vc.Logical().Delete(fmt.Sprintf("secret/secret%v", i))
+		_, err = vc.Delete(fmt.Sprintf("secret/secret%v", i))
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
 	}
 
-	_, err = vc.Logical().Delete("secret/directory/secret1")
+	_, err = vc.Delete("secret/directory/secret1")
 	if err != nil {
 		t.Fatalf("Unable to write test secret: %q", err)
 	}

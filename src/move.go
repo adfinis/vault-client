@@ -17,7 +17,7 @@ func (c *MoveCommand) Run(args []string) int {
 		return 1
 	}
 
-	secret, err := vc.Logical().Read(args[0])
+	secret, err := vc.Read(args[0])
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to find source secret: %q", err)))
 		return 1
@@ -28,13 +28,13 @@ func (c *MoveCommand) Run(args []string) int {
 		return 1
 	}
 
-	_, err = vc.Logical().Write(args[1], secret.Data)
+	_, err = vc.Write(args[1], secret.Data)
 	if err != nil {
 		fmt.Println("Unable to write destination secret")
 		return 1
 	}
 
-	_, err = vc.Logical().Delete(args[0])
+	_, err = vc.Delete(args[0])
 	if err != nil {
 		fmt.Println("Unable to remove source secret")
 		return 1
