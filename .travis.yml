@@ -24,6 +24,11 @@ install:
 
 before_script:
   - vault server -dev -dev-root-token-id="password" &
+  # Remount secret engine with kv version 1
+  - sleep 1
+  - vault login password
+  - vault secrets disable secret/
+  - vault secrets enable -path=secret/ kv
 
 script:
   - make test
