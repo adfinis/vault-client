@@ -25,6 +25,7 @@ install:
 before_script:
   - vault server -dev -dev-root-token-id="password" &
   # Remount secret engine with kv version 1
+  - export VAULT_ADDR="http://127.0.0.1:8200"
   - sleep 1
   - vault login password
   - vault secrets disable secret/
