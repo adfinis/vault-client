@@ -52,13 +52,13 @@ func GetAuthenticationToken(ui cli.Ui) (string, error) {
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return "", fmt.Errorf("Unable to parse request body", err)
+		return "", fmt.Errorf("Unable to parse request body: %q", err)
 	}
 
 	var secret vault.Secret
 	err = json.Unmarshal(body, &secret)
 	if err != nil {
-		return "", fmt.Errorf("Unable to parse request body", err)
+		return "", fmt.Errorf("Unable to parse request body: %q", err)
 	}
 
 	return secret.Auth.ClientToken, nil

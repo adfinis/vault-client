@@ -1,11 +1,11 @@
 language: go
 
-go: 1.9.2
+go: "1.11.2"
 
 sudo: required
 
 before_install:
-  - export VAULT_VERSION=0.9.0
+  - export VAULT_VERSION=0.11.5
   - cp sample/vaultrc ~/.vaultrc
   - sed -i 's/^token:.*/token:\ password/g' ~/.vaultrc
   - chmod 700 ~/.vaultrc
@@ -24,6 +24,12 @@ install:
 
 before_script:
   - vault server -dev -dev-root-token-id="password" &
+  # Remount secret engine with kv version 1
+  - export VAULT_ADDR="http://127.0.0.1:8200"
+  - sleep 1
+  - vault login password
+  - vault secrets disable secret/
+  - vault secrets enable -path=secret/ kv
 
 script:
   - make test
@@ -38,4 +44,3 @@ deploy:
     - vc
   on:
     tags: true
-
