@@ -33,29 +33,10 @@ func (c *EditCommand) Run(args []string) int {
 
 	path := args[0]
 
-	mountPath, v2, err := isKVv2(path, vc.Client)
-	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Unable to determin kv engine version: %q", err))
-		return 1
-	}
-
-	if v2 {
-		path = addPrefixToVKVPath(path, mountPath, "data")
-		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Unable to patch path with prefix: %q", err))
-			return 1
-		}
-	}
-
-
-	secret, err := vc.Read(path)
+	secret, err := kv.Read(path)
 	if err != nil {
 		c.Ui.Error(CheckError(err, err.Error()))
 		return 1
-	}
-
-	if v2 {
-		secret.Data = secret.Data["data"].(map[string]interface{})
 	}
 
 	file, err := ioutil.TempFile("", "vaultsecret")
@@ -104,7 +85,7 @@ func (c *EditCommand) Run(args []string) int {
 
 	if len(data) == 0 {
 		// Delete the secret if no key/value pairs are left
-		_, err = vc.Delete(path)
+		_, err = kv.Delete(path)
 		if err != nil {
 			c.Ui.Output(fmt.Sprintf("Unable to delete empty secret"))
 			return 1
@@ -112,13 +93,7 @@ func (c *EditCommand) Run(args []string) int {
 		c.Ui.Output(fmt.Sprintf("Secret was deleted because no K/V pairs were associated with it."))
 	} else {
 
-		if v2 {
-			data = map[string]interface{} {
-				"data": data,
-			}
-		}
-
-		_, err = vc.Write(path, data)
+		_, err = kv.Write(path, data)
 		if err != nil {
 			c.Ui.Output(fmt.Sprintf("Unable to save secret %q", err))
 			return 1

@@ -11,7 +11,7 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-var vc *KvClient
+var kv *KvClient
 var cfg Config
 
 func main() {
@@ -52,7 +52,7 @@ func InitializeClient() error {
 
 	var err error
 
-	vc, err = NewKvClient(&config, cfg.Token)
+	kv, err = NewKvClient(&config, cfg.Token)
 	if err != nil {
 		return err
 	}

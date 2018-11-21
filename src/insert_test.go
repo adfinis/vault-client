@@ -74,7 +74,7 @@ func TestInsert(t *testing.T) {
 		}
 	})
 
-	_, err = vc.Delete("secret/insertedsecret")
+	_, err = kv.Delete("secret/insertedsecret")
 	if err != nil {
 		t.Fatalf("Unable to clean up test secret: %q", err)
 	}

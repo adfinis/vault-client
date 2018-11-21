@@ -83,8 +83,8 @@ func ComposeUrl() string {
 func UpdateConfigToken(token string) error {
 
 	// Reauthenticate against Vault and update in-memory config
-	vc.Client.SetToken(token)
-	vc.Client.Auth()
+	kv.Client.SetToken(token)
+	kv.Client.Auth()
 	cfg.Token = token
 
 	path, err := GetConfigPath()

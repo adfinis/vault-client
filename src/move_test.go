@@ -63,7 +63,7 @@ func TestMove(t *testing.T) {
 		data := make(map[string]interface{})
 		data["key"] = "value"
 
-		_, err = vc.Write("secret/existent", data)
+		_, err = kv.Write("secret/existent", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
@@ -83,7 +83,7 @@ func TestMove(t *testing.T) {
 		}
 	})
 
-	_, err = vc.Delete("secret/destinationsecret")
+	_, err = kv.Delete("secret/destinationsecret")
 	if err != nil {
 		t.Fatalf("Unable to clean up test secret: %q", err)
 	}

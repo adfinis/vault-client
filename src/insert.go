@@ -30,7 +30,7 @@ func (c *InsertCommand) Run(args []string) int {
 		data[kvpair[0]] = kvpair[1]
 	}
 
-	_, err := vc.Write(path, data)
+	_, err := kv.Write(path, data)
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to write secret: %q", err)))
 		return 1
