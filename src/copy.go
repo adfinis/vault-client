@@ -17,18 +17,22 @@ func (c *CopyCommand) Run(args []string) int {
 		return 1
 	}
 
-	secret, err := kv.Get(args[0])
+	fmt.Printf("%v", args)
+	src := args[0]
+	dest := args[1]
+
+	data, err := kv.Get(src)
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to find source secret: %q", err)))
 		return 1
 	}
 
-	if secret == nil {
+	if data == nil {
 		c.Ui.Error("Source secret doesn't exist")
 		return 1
 	}
 
-	_, err = kv.Put(args[1], secret.Data)
+	_, err = kv.Put(dest, data)
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("Unable to write destination secret: %q", err))
 		return 1

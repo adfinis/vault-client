@@ -10,7 +10,6 @@ import (
 	"sort"
 	"strings"
 
-	vault "github.com/hashicorp/vault/api"
 	"github.com/mitchellh/cli"
 )
 
@@ -33,7 +32,7 @@ func (c *EditCommand) Run(args []string) int {
 
 	path := args[0]
 
-	secret, err := kv.Get(path)
+	data, err := kv.Get(path)
 	if err != nil {
 		c.Ui.Error(CheckError(err, err.Error()))
 		return 1
@@ -46,15 +45,8 @@ func (c *EditCommand) Run(args []string) int {
 	}
 	defer os.Remove(file.Name())
 
-	if secret == nil {
-		// If the secret does not exist, it will not have any data. In that case initialize
-		// it to avoid a nil pointer exception
-		secret = &vault.Secret{Data: make(map[string]interface{})}
-	}
+	WriteSecretToFile(file, data)
 
-	WriteSecretToFile(file, secret.Data)
-
-	var data map[string]interface{}
 	secretIsValid := false
 
 	// Re-open the text editor if the parsing of the resulting secret fails
