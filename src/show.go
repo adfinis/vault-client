@@ -32,11 +32,6 @@ func (c *ShowCommand) Run(args []string) int {
 		return 1
 	}
 
-	if data == nil {
-		c.Ui.Error("Secret does not exist")
-		return 1
-	}
-
 	var maxKeyLength = 0
 	var keys []string
 

@@ -69,7 +69,7 @@ func (c *KvClient) Get(path string) (map[string]interface{}, error) {
 	}
 
 	if sec == nil {
-		return make(map[string]interface{}), nil
+		return nil, fmt.Errorf("Secret does not exist")
 	}
 
 	if v2 {

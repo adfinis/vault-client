@@ -23,11 +23,6 @@ func (c *MoveCommand) Run(args []string) int {
 		return 1
 	}
 
-	if data == nil {
-		c.Ui.Error("Source secret doesn't exist")
-		return 1
-	}
-
 	_, err = kv.Put(args[1], data)
 	if err != nil {
 		fmt.Println("Unable to write destination secret")

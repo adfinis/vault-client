@@ -51,7 +51,7 @@ func TestMove(t *testing.T) {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
 		}
 
-		expected := "Source secret doesn't exist"
+		expected := "Secret does not exist"
 		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
 			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
 		}

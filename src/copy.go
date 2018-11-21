@@ -17,18 +17,12 @@ func (c *CopyCommand) Run(args []string) int {
 		return 1
 	}
 
-	fmt.Printf("%v", args)
 	src := args[0]
 	dest := args[1]
 
 	data, err := kv.Get(src)
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to find source secret: %q", err)))
-		return 1
-	}
-
-	if data == nil {
-		c.Ui.Error("Source secret doesn't exist")
 		return 1
 	}
 
