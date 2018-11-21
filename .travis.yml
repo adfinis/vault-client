@@ -1,11 +1,11 @@
 language: go
 
-go: 1.9.2
+go: "1.11.2"
 
 sudo: required
 
 before_install:
-  - export VAULT_VERSION=0.9.0
+  - export VAULT_VERSION=0.11.5
   - cp sample/vaultrc ~/.vaultrc
   - sed -i 's/^token:.*/token:\ password/g' ~/.vaultrc
   - chmod 700 ~/.vaultrc
@@ -38,4 +38,3 @@ deploy:
     - vc
   on:
     tags: true
-
