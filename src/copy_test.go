@@ -63,7 +63,7 @@ func TestCopy(t *testing.T) {
 		data := make(map[string]interface{})
 		data["key"] = "value"
 
-		_, err = kv.Write("secret/existent", data)
+		_, err = kv.Put("secret/existent", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}

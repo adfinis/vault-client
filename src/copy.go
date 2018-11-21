@@ -17,7 +17,7 @@ func (c *CopyCommand) Run(args []string) int {
 		return 1
 	}
 
-	secret, err := kv.Read(args[0])
+	secret, err := kv.Get(args[0])
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to find source secret: %q", err)))
 		return 1
@@ -28,7 +28,7 @@ func (c *CopyCommand) Run(args []string) int {
 		return 1
 	}
 
-	_, err = kv.Write(args[1], secret.Data)
+	_, err = kv.Put(args[1], secret.Data)
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("Unable to write destination secret: %q", err))
 		return 1

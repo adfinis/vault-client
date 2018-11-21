@@ -22,17 +22,17 @@ func NewKvClient(cfg *vault.Config, token string) (*KvClient, error) {
 	return &KvClient{Client: c}, nil
 }
 
+func (c *KvClient) Put(path string, data map[string]interface{}) (*vault.Secret, error) {
+	return c.Client.Logical().Write(path, data)
+}
 
-func (c *KvClient) Read(path string) (*vault.Secret, error) {
+
+func (c *KvClient) Get(path string) (*vault.Secret, error) {
 	return c.Client.Logical().Read(path)
 }
 
 func (c *KvClient) Delete(path string) (*vault.Secret, error) {
 	return c.Client.Logical().Delete(path)
-}
-
-func (c *KvClient) Write(path string, data map[string]interface{}) (*vault.Secret, error) {
-	return c.Client.Logical().Write(path, data)
 }
 
 func (c *KvClient) List(path string) (*vault.Secret, error) {

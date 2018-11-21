@@ -49,7 +49,7 @@ func TestList(t *testing.T) {
 		data["key"] = "value"
 
 		for i := 1; i <= 3; i++ {
-			_, err = kv.Write(fmt.Sprintf("secret/secret%v", i), data)
+			_, err = kv.Put(fmt.Sprintf("secret/secret%v", i), data)
 			if err != nil {
 				t.Fatalf("Unable to write test secret: %q", err)
 			}

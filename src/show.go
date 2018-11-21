@@ -26,7 +26,7 @@ func (c *ShowCommand) Run(args []string) int {
 
 	path := args[0]
 
-	secret, err := kv.Read(path)
+	secret, err := kv.Get(path)
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("There was an error while retrieving the secret: %q", err)))
 		return 1

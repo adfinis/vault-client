@@ -33,7 +33,7 @@ func (c *EditCommand) Run(args []string) int {
 
 	path := args[0]
 
-	secret, err := kv.Read(path)
+	secret, err := kv.Get(path)
 	if err != nil {
 		c.Ui.Error(CheckError(err, err.Error()))
 		return 1
@@ -93,7 +93,7 @@ func (c *EditCommand) Run(args []string) int {
 		c.Ui.Output(fmt.Sprintf("Secret was deleted because no K/V pairs were associated with it."))
 	} else {
 
-		_, err = kv.Write(path, data)
+		_, err = kv.Put(path, data)
 		if err != nil {
 			c.Ui.Output(fmt.Sprintf("Unable to save secret %q", err))
 			return 1
