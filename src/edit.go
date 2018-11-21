@@ -33,10 +33,29 @@ func (c *EditCommand) Run(args []string) int {
 
 	path := args[0]
 
+	mountPath, v2, err := isKVv2(path, vc)
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Unable to determin kv engine version: %q", err))
+		return 1
+	}
+
+	if v2 {
+		path = addPrefixToVKVPath(path, mountPath, "data")
+		if err != nil {
+			c.Ui.Error(fmt.Sprintf("Unable to patch path with prefix: %q", err))
+			return 1
+		}
+	}
+
+
 	secret, err := vc.Logical().Read(path)
 	if err != nil {
 		c.Ui.Error(CheckError(err, err.Error()))
 		return 1
+	}
+
+	if v2 {
+		secret.Data = secret.Data["data"].(map[string]interface{})
 	}
 
 	file, err := ioutil.TempFile("", "vaultsecret")
@@ -64,7 +83,7 @@ func (c *EditCommand) Run(args []string) int {
 
 		err = EditFile(file.Name())
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Unable to edit secret file %q", err))
+			c.Ui.Error(fmt.Sprintf("Unable to edit secret file: %q", err))
 			return 1
 		}
 
@@ -92,6 +111,13 @@ func (c *EditCommand) Run(args []string) int {
 		}
 		c.Ui.Output(fmt.Sprintf("Secret was deleted because no K/V pairs were associated with it."))
 	} else {
+
+		if v2 {
+			data = map[string]interface{} {
+				"data": data,
+			}
+		}
+
 		_, err = vc.Logical().Write(path, data)
 		if err != nil {
 			c.Ui.Output(fmt.Sprintf("Unable to save secret %q", err))

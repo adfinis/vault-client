@@ -7,24 +7,6 @@ import(
 	"github.com/hashicorp/vault/api"
 )
 
-// Resolve the path to a secret
-func ResolvePath(path string, client *api.Client) (string, error) {
-	mountPath, v2, err := isKVv2(path, client)
-	if err != nil {
-		return "", err
-	}
-
-
-	if v2 {
-		path = addPrefixToVKVPath(path, mountPath, "data")
-		if err != nil {
-			return "", err
-		}
-	}
-
-	return path, nil
-}
-
 func kvPreflightVersionRequest(client *api.Client, path string) (string, int, error) {
 	// We don't want to use a wrapping call here so save any custom value and
 	// restore after
