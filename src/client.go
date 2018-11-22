@@ -39,7 +39,9 @@ func (c *KvClient) Put(path string, data map[string]interface{}) (*vault.Secret,
 	}
 
 	if v2 {
-		data["data"] = data
+		tmp := data
+		data = make(map[string]interface{})
+		data["data"] = tmp
 	}
 
 	sec, err:= c.Client.Logical().Write(path, data)
