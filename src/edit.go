@@ -34,8 +34,12 @@ func (c *EditCommand) Run(args []string) int {
 
 	data, err := kv.Get(path)
 	if err != nil {
-		c.Ui.Error(CheckError(err, err.Error()))
-		return 1
+		if err.Error() == "Secret does not exist" {
+			data = make(map[string]interface{})
+		} else {
+			c.Ui.Error(CheckError(err, err.Error()))
+			return 1
+		}
 	}
 
 	file, err := ioutil.TempFile("", "vaultsecret")
