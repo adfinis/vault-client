@@ -7,9 +7,13 @@ Vault Client
 [HashiCorp's Vault](https://www.vaultproject.io/) inspired by
 [pass](https://www.passwordstore.org/).
 
-* Makes secrets from `generic` backends easy accessible
+* Makes secrets from `kv2` backends easy accessible
 * Support for comments through `#` line prefix
 * Features auto completion for `bash` and `zsh`
+
+Requirements
+------------
+The vault client only works with vault >0.8.3 and with kv secrete engine version 2.
 
 Demo
 ----
