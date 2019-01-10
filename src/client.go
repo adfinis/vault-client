@@ -27,12 +27,10 @@ func NewKvClient(cfg *vault.Config, token string) (*KvClient, error) {
 
 func (c *KvClient) Put(path string, data map[string]interface{}) (*vault.Secret, error) {
 
-	mountPath, err := c.getMountPath(path)
+	path, err := c.composePath(path, "data")
 	if err != nil {
-		return nil, fmt.Errorf("Unable to determine mount path of secret: %q", err)
+		return nil, fmt.Errorf("Unable to determine path of secret: %q", err)
 	}
-
-	path = addPrefixToPath(path, mountPath, "data")
 
 	tmp := data
 	data = make(map[string]interface{})
@@ -47,12 +45,11 @@ func (c *KvClient) Put(path string, data map[string]interface{}) (*vault.Secret,
 
 
 func (c *KvClient) Get(path string) (map[string]interface{}, error) {
-	mountPath, err := c.getMountPath(path)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to determine mount path of secret: %q", err)
-	}
 
-	path = addPrefixToPath(path, mountPath, "data")
+	path, err := c.composePath(path, "data")
+	if err != nil {
+		return nil, fmt.Errorf("Unable to determine path of secret: %q", err)
+	}
 
 	sec, err:= c.Client.Logical().Read(path)
 	if err != nil {
@@ -68,12 +65,11 @@ func (c *KvClient) Get(path string) (map[string]interface{}, error) {
 
 
 func (c *KvClient) Delete(path string) (*vault.Secret, error) {
-	mountPath, err := c.getMountPath(path)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to determine mount path of secret: %q", err)
-	}
 
-	path = addPrefixToPath(path, mountPath, "data")
+	path, err := c.composePath(path, "data")
+	if err != nil {
+		return nil, fmt.Errorf("Unable to determine path of secret: %q", err)
+	}
 
 	sec, err:= c.Client.Logical().Read(path)
 	if err != nil {
@@ -104,12 +100,10 @@ func (c *KvClient) List(path string) ([]string, error) {
 		return backends, nil
 	}
 
-	mountPath, err := c.getMountPath(path)
+	path, err := c.composePath(path, "metadata")
 	if err != nil {
-		return nil, fmt.Errorf("Unable to determine mount path of secret: %q", err)
+		return nil, fmt.Errorf("Unable to determine path of secret: %q", err)
 	}
-
-	path = addPrefixToPath(path, mountPath, "metadata")
 
 	secret, err := c.Client.Logical().List(path)
 	if err != nil {
@@ -161,7 +155,7 @@ func (c *KvClient) ListRecursively(path string) ([]string, error) {
 }
 
 
-func (c *KvClient) getMountPath(path string) (string, error) {
+func (c *KvClient) composePath(p , prefix string) (string, error) {
 
 	// We don't want to use a wrapping call here so save any custom value and
 	// restore after
@@ -169,7 +163,7 @@ func (c *KvClient) getMountPath(path string) (string, error) {
 	    c.Client.SetWrappingLookupFunc(nil)
 	defer c.Client.SetWrappingLookupFunc(currentWrappingLookupFunc)
 
-	r := c.Client.NewRequest("GET", "/v1/sys/internal/ui/mounts/" + path)
+	r := c.Client.NewRequest("GET", "/v1/sys/internal/ui/mounts/" + p)
 	resp, err := c.Client.RawRequest(r)
 	if resp != nil {
 		defer resp.Body.Close()
@@ -187,15 +181,16 @@ func (c *KvClient) getMountPath(path string) (string, error) {
 	if mountPathRaw, ok := secret.Data["path"]; ok {
 		mountPath = mountPathRaw.(string)
 	}
-	return mountPath, nil
-}
 
-func addPrefixToPath(p, mountPath, apiPrefix string) string {
+
+	var realPath string
 	switch {
 	case p == mountPath, p == strings.TrimSuffix(mountPath, "/"):
-		return path.Join(mountPath, apiPrefix)
+		realPath = path.Join(mountPath, prefix)
 	default:
 		p = strings.TrimPrefix(p, mountPath)
-		return path.Join(mountPath, apiPrefix, p)
+		realPath = path.Join(mountPath, prefix, p)
 	}
+
+	return realPath, nil
 }
