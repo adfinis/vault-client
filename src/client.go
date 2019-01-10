@@ -96,7 +96,6 @@ func (c *KvClient) List(path string) ([]string, error) {
 		}
 
 		var backends []string
-		fmt.Println(mounts)
 		for x, i := range mounts {
 			if i.Type == "kv" {
 				backends = append(backends, x)
