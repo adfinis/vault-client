@@ -85,7 +85,8 @@ func (c *KvClient) Delete(path string) (*vault.Secret, error) {
 
 func (c *KvClient) List(path string) ([]string, error) {
 
-	if path == "/" || path == "" {
+	path = strings.TrimLeft(path, "/")
+	if path == "" {
 		mounts, err := kv.Client.Sys().ListMounts()
 		if err != nil {
 			return nil, err
