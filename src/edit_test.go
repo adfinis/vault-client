@@ -18,8 +18,8 @@ func TestEdit(t *testing.T) {
 
 		test_files := map[string]error{
 			"invalid_secret_multiple_delimiters.txt": ErrMultipleDelimiters,
-			"invalid_secret_missing_delimiter.txt": ErrMissingDelimiter,
-			"invalid_secret_duplicated_key.txt": ErrDuplicateKey,
+			"invalid_secret_missing_delimiter.txt":   ErrMissingDelimiter,
+			"invalid_secret_duplicated_key.txt":      ErrDuplicateKey,
 		}
 
 		for file, expected := range test_files {

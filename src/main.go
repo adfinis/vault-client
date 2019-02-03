@@ -4,8 +4,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
-	"time"
 	"os"
+	"time"
 
 	vault "github.com/hashicorp/vault/api"
 	"github.com/mitchellh/cli"
@@ -47,7 +47,7 @@ func InitializeClient() error {
 	config := vault.Config{
 		Address:    ComposeUrl(),
 		HttpClient: &http.Client{Transport: tr},
-		Timeout: 3 * time.Second,
+		Timeout:    3 * time.Second,
 	}
 
 	var err error
