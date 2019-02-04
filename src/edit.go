@@ -58,7 +58,7 @@ func (c *EditCommand) Run(args []string) int {
 	secretIsValid := false
 
 	// Re-open the text editor if the parsing of the resulting secret fails
-	for(secretIsValid == false) {
+	for secretIsValid == false {
 
 		secretIsValid = true
 
@@ -187,7 +187,6 @@ func ParseSecret(path string) (map[string]interface{}, error) {
 					fmt.Fprintf(os.Stderr, "Unable to parse key/value pair %q. Make sure that there is only one \": \" delimiter in it.", line)
 					return data, ErrMultipleDelimiters
 				}
-
 
 				key, value := kvPair[0], kvPair[1]
 

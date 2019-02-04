@@ -1,13 +1,13 @@
 package main
 
 import (
-	"net/url"
 	"crypto/tls"
-	"strings"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	vault "github.com/hashicorp/vault/api"
@@ -82,7 +82,6 @@ func GetTokenTTL(token string) (time.Time, error) {
 
 	return time.Unix(time.Now().Unix()+ttl, 0), nil
 }
-
 
 // Check whether a generic error occured because:
 //   a. the token expired
