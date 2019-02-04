@@ -11,12 +11,8 @@ import (
 
 func TestShow(t *testing.T) {
 
-	err := LoadConfig()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
-
-	err = InitializeClient()
+	var err error
+	cfg, vc, err = SetupTestEnvironment()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
@@ -26,7 +22,7 @@ func TestShow(t *testing.T) {
 
 	t.Run("ShowNonexistentSecret", func(t *testing.T) {
 
-		args := []string{"secret/secret2"}
+		args := []string{TestBackend + "/secret2"}
 
 		if rc := c.Run(args); rc != 1 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
@@ -49,12 +45,12 @@ func TestShow(t *testing.T) {
 		data := make(map[string]interface{})
 		data["key"] = "value"
 
-		_, err = vc.Logical().Write("secret/secret1", data)
+		_, err = vc.Logical().Write(TestBackend+"/secret1", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
 
-		args := []string{"secret/secret1"}
+		args := []string{TestBackend + "/secret1"}
 
 		if rc := c.Run(args); rc != 0 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
@@ -79,12 +75,12 @@ func TestShow(t *testing.T) {
 		data["c_key"] = "value"
 		data["b_key"] = "value"
 
-		_, err = vc.Logical().Write("secret/secret1", data)
+		_, err = vc.Logical().Write(TestBackend+"/secret1", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
 
-		args := []string{"secret/secret1"}
+		args := []string{TestBackend + "/secret1"}
 
 		if rc := c.Run(args); rc != 0 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
@@ -103,8 +99,8 @@ c_key: value`
 		}
 	})
 
-	_, err = vc.Logical().Delete("secret/secret1")
+	err = TeardownTestEnvironment()
 	if err != nil {
-		t.Fatalf("Unable to write test secret: %q", err)
+		fmt.Fprintln(os.Stderr, err.Error())
 	}
 }

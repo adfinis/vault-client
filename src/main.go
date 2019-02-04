@@ -16,13 +16,14 @@ var cfg Config
 
 func main() {
 
-	err := LoadConfig()
+	_, err := LoadConfig()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 
-	err = InitializeClient()
+	_, err = InitializeClient()
+
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
@@ -38,7 +39,7 @@ func main() {
 	os.Exit(exitStatus)
 }
 
-func InitializeClient() error {
+func InitializeClient() (*vault.Client, error) {
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: !cfg.VerifyTLS},
@@ -54,12 +55,12 @@ func InitializeClient() error {
 
 	vc, err = vault.NewClient(&config)
 	if err != nil {
-		return err
+		return vc, err
 	}
 
 	vc.SetToken(cfg.Token)
 	vc.Auth()
-	return nil
+	return vc, nil
 }
 
 func LoadCli() *cli.CLI {

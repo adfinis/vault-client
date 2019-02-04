@@ -23,7 +23,7 @@ type Config struct {
 	Path        string
 }
 
-func LoadConfig() error {
+func LoadConfig() (Config, error) {
 
 	cfg = Config{
 		Host:        "127.0.0.1",
@@ -39,12 +39,12 @@ func LoadConfig() error {
 
 	cfg.Path, err = GetConfigPath()
 	if err != nil {
-		return err
+		return cfg, err
 	}
 
 	file, err := os.Stat(cfg.Path)
 	if err != nil {
-		return err
+		return cfg, err
 	}
 
 	config_file_permissions := file.Mode().String()
@@ -52,20 +52,20 @@ func LoadConfig() error {
 	// Check that the config file is only readable by the user.
 	// And not by his group or others (-rwx------)
 	if !strings.HasSuffix(config_file_permissions, "------") {
-		return fmt.Errorf("Your ~/.vaultrc is accessible for others (chmod 700 ~/.vaultrc)")
+		return cfg, fmt.Errorf("Your ~/.vaultrc is accessible for others (chmod 700 ~/.vaultrc)")
 	}
 
 	content, err := ioutil.ReadFile(cfg.Path)
 	if err != nil {
-		return err
+		return cfg, err
 	}
 
 	err = yaml.Unmarshal(content, &cfg)
 	if err != nil {
-		return err
+		return cfg, err
 	}
 
-	return nil
+	return cfg, nil
 }
 
 func ComposeUrl() string {

@@ -11,12 +11,8 @@ import (
 
 func TestInsert(t *testing.T) {
 
-	err := LoadConfig()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
-
-	err = InitializeClient()
+	var err error
+	cfg, vc, err = SetupTestEnvironment()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
@@ -27,7 +23,7 @@ func TestInsert(t *testing.T) {
 	t.Run("TooFewArgs", func(t *testing.T) {
 
 		args := []string{
-			"secret/insertedsecret",
+			TestBackend + "/insertedsecret",
 		}
 
 		if rc := c.Run(args); rc != 1 {
@@ -43,7 +39,7 @@ func TestInsert(t *testing.T) {
 	t.Run("InsertInvalidKvArgs", func(t *testing.T) {
 
 		args := []string{
-			"secret/insertedsecret",
+			TestBackend + "/insertedsecret",
 			"invalidkey: invalidvalue",
 		}
 
@@ -60,7 +56,7 @@ func TestInsert(t *testing.T) {
 	t.Run("InsertValidKvArgs", func(t *testing.T) {
 
 		args := []string{
-			"secret/insertedsecret",
+			TestBackend + "/insertedsecret",
 			"invalidkey=invalidvalue",
 		}
 
@@ -74,8 +70,8 @@ func TestInsert(t *testing.T) {
 		}
 	})
 
-	_, err = vc.Logical().Delete("secret/insertedsecret")
+	err = TeardownTestEnvironment()
 	if err != nil {
-		t.Fatalf("Unable to clean up test secret: %q", err)
+		fmt.Fprintln(os.Stderr, err.Error())
 	}
 }
