@@ -17,24 +17,19 @@ func (c *MoveCommand) Run(args []string) int {
 		return 1
 	}
 
-	secret, err := vc.Logical().Read(args[0])
+	data, err := kv.Get(args[0])
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to find source secret: %q", err)))
 		return 1
 	}
 
-	if secret == nil {
-		c.Ui.Error("Source secret doesn't exist")
-		return 1
-	}
-
-	_, err = vc.Logical().Write(args[1], secret.Data)
+	_, err = kv.Put(args[1], data)
 	if err != nil {
 		fmt.Println("Unable to write destination secret")
 		return 1
 	}
 
-	_, err = vc.Logical().Delete(args[0])
+	_, err = kv.Delete(args[0])
 	if err != nil {
 		fmt.Println("Unable to remove source secret")
 		return 1

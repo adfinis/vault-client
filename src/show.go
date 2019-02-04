@@ -26,21 +26,16 @@ func (c *ShowCommand) Run(args []string) int {
 
 	path := args[0]
 
-	secret, err := vc.Logical().Read(path)
+	data, err := kv.Get(path)
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("There was an error while retrieving the secret: %q", err)))
-		return 1
-	}
-
-	if secret == nil {
-		c.Ui.Error("Secret does not exist")
 		return 1
 	}
 
 	var maxKeyLength = 0
 	var keys []string
 
-	for key, _ := range secret.Data {
+	for key, _ := range data {
 
 		// Ignore k/v pair that are comments
 		if !strings.HasSuffix(key, "_comment") {
@@ -59,7 +54,7 @@ func (c *ShowCommand) Run(args []string) int {
 	var output string
 	for _, key := range keys {
 
-		if value, exists := secret.Data[key+"_comment"].(string); exists {
+		if value, exists := data[key+"_comment"].(string); exists {
 
 			if multilineComments := strings.Split(value, "\n"); len(multilineComments) > 1 {
 				for _, comment := range multilineComments {
@@ -73,7 +68,7 @@ func (c *ShowCommand) Run(args []string) int {
 		output += fmt.Sprintf(
 			"%-"+fmt.Sprint(maxKeyLength)+"v%v\n",
 			key+":",
-			strings.TrimSpace(secret.Data[key].(string)),
+			strings.TrimSpace(data[key].(string)),
 		)
 	}
 

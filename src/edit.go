@@ -10,7 +10,6 @@ import (
 	"sort"
 	"strings"
 
-	vault "github.com/hashicorp/vault/api"
 	"github.com/mitchellh/cli"
 )
 
@@ -33,10 +32,14 @@ func (c *EditCommand) Run(args []string) int {
 
 	path := args[0]
 
-	secret, err := vc.Logical().Read(path)
+	data, err := kv.Get(path)
 	if err != nil {
-		c.Ui.Error(CheckError(err, err.Error()))
-		return 1
+		if err.Error() == "Secret does not exist" {
+			data = make(map[string]interface{})
+		} else {
+			c.Ui.Error(CheckError(err, err.Error()))
+			return 1
+		}
 	}
 
 	file, err := ioutil.TempFile("", "vaultsecret")
@@ -46,15 +49,8 @@ func (c *EditCommand) Run(args []string) int {
 	}
 	defer os.Remove(file.Name())
 
-	if secret == nil {
-		// If the secret does not exist, it will not have any data. In that case initialize
-		// it to avoid a nil pointer exception
-		secret = &vault.Secret{Data: make(map[string]interface{})}
-	}
+	WriteSecretToFile(file, data)
 
-	WriteSecretToFile(file, secret.Data)
-
-	var data map[string]interface{}
 	secretIsValid := false
 
 	// Re-open the text editor if the parsing of the resulting secret fails
@@ -64,7 +60,7 @@ func (c *EditCommand) Run(args []string) int {
 
 		err = EditFile(file.Name())
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Unable to edit secret file %q", err))
+			c.Ui.Error(fmt.Sprintf("Unable to edit secret file: %q", err))
 			return 1
 		}
 
@@ -85,14 +81,15 @@ func (c *EditCommand) Run(args []string) int {
 
 	if len(data) == 0 {
 		// Delete the secret if no key/value pairs are left
-		_, err = vc.Logical().Delete(path)
+		_, err = kv.Delete(path)
 		if err != nil {
 			c.Ui.Output(fmt.Sprintf("Unable to delete empty secret"))
 			return 1
 		}
 		c.Ui.Output(fmt.Sprintf("Secret was deleted because no K/V pairs were associated with it."))
 	} else {
-		_, err = vc.Logical().Write(path, data)
+
+		_, err = kv.Put(path, data)
 		if err != nil {
 			c.Ui.Output(fmt.Sprintf("Unable to save secret %q", err))
 			return 1

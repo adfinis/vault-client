@@ -22,7 +22,7 @@ func (c *DeleteCommand) Run(args []string) int {
 
 	path := args[0]
 
-	secret, err := vc.Logical().Read(path)
+	secret, err := kv.Get(path)
 	if err != nil {
 		c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to receive the secret: %q", err)))
 		return 1
@@ -33,7 +33,7 @@ func (c *DeleteCommand) Run(args []string) int {
 		return 1
 	}
 
-	_, err = vc.Logical().Delete(path)
+	_, err = kv.Delete(path)
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("Unable to delete secret: %q", err))
 		return 1

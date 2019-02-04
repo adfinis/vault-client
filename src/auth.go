@@ -70,7 +70,7 @@ func GetTokenTTL(token string) (time.Time, error) {
 	var valid_until time.Time
 
 	// Don't login, just show information about the current token.
-	secret, err := vc.Auth().Token().Lookup(cfg.Token)
+	secret, err := kv.Client.Auth().Token().Lookup(cfg.Token)
 	if err != nil {
 		return valid_until, err
 	}
