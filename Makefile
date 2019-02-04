@@ -30,7 +30,7 @@ test:  ## Runs all tests
 
 install-deps:  ## Installs go dependencies
 	for dep in $(GO_DEPENDENCIES); do \
-		GOPATH=$$(pwd) go get $$dep; \
+		GOPATH=$$(pwd) go get -v $$dep; \
 	done
 
 build: install-deps  ## Compiles the program
