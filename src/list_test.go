@@ -11,12 +11,8 @@ import (
 
 func TestList(t *testing.T) {
 
-	err := LoadConfig()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
-
-	err = InitializeClient()
+	var err error
+	cfg, vc, err = SetupTestEnvironment()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
@@ -26,7 +22,7 @@ func TestList(t *testing.T) {
 
 	t.Run("ListSecretsInEmptyBackend", func(t *testing.T) {
 
-		args := []string{"secret/"}
+		args := []string{TestBackend}
 
 		if rc := c.Run(args); rc != 0 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
@@ -49,13 +45,13 @@ func TestList(t *testing.T) {
 		data["key"] = "value"
 
 		for i := 1; i <= 3; i++ {
-			_, err = vc.Logical().Write(fmt.Sprintf("secret/secret%v", i), data)
+			_, err = vc.Logical().Write(fmt.Sprintf(TestBackend+"/secret%v", i), data)
 			if err != nil {
 				t.Fatalf("Unable to write test secret: %q", err)
 			}
 		}
 
-		args := []string{"secret/"}
+		args := []string{TestBackend}
 
 		if rc := c.Run(args); rc != 0 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
@@ -88,24 +84,17 @@ secret3`
 			t.Fatalf("expected error:\n%s\n\nto include: %q", actual, expectedErr)
 		}
 
-		expectedOutput := `secret/secret1
-secret/secret2
-secret/secret3`
+		expectedOutput := `test/secret1
+test/secret2
+test/secret3`
 		if actual := ui.OutputWriter.String(); !strings.Contains(actual, expectedOutput) {
 			t.Fatalf("expected output:\n%s\n\nto include: %q", actual, expectedOutput)
 		}
 
 	})
 
-	for i := 1; i <= 3; i++ {
-		_, err = vc.Logical().Delete(fmt.Sprintf("secret/secret%v", i))
-		if err != nil {
-			t.Fatalf("Unable to write test secret: %q", err)
-		}
-	}
-
-	_, err = vc.Logical().Delete("secret/directory/secret1")
+	err = TeardownTestEnvironment()
 	if err != nil {
-		t.Fatalf("Unable to write test secret: %q", err)
+		fmt.Fprintln(os.Stderr, err.Error())
 	}
 }

@@ -11,12 +11,8 @@ import (
 
 func TestDelete(t *testing.T) {
 
-	err := LoadConfig()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
-
-	err = InitializeClient()
+	var err error
+	cfg, vc, err = SetupTestEnvironment()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
@@ -27,8 +23,8 @@ func TestDelete(t *testing.T) {
 	t.Run("TooManyArgs", func(t *testing.T) {
 
 		args := []string{
-			"secret/doesntexist",
-			"secret/toomucharguments",
+			TestBackend + "/doesntexist",
+			TestBackend + "/toomucharguments",
 		}
 
 		if rc := c.Run(args); rc != 1 {
@@ -43,7 +39,7 @@ func TestDelete(t *testing.T) {
 
 	t.Run("NonexistentSecret", func(t *testing.T) {
 
-		args := []string{"secret/doesntexist"}
+		args := []string{TestBackend + "/doesntexist"}
 
 		if rc := c.Run(args); rc != 1 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
@@ -61,7 +57,7 @@ func TestDelete(t *testing.T) {
 		data := make(map[string]interface{})
 		data["key"] = "value"
 
-		_, err = vc.Logical().Write("secret/existent", data)
+		_, err = vc.Logical().Write(TestBackend+"/existent", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
@@ -69,7 +65,7 @@ func TestDelete(t *testing.T) {
 		ui := new(cli.MockUi)
 		c := &DeleteCommand{Ui: ui}
 
-		args := []string{"secret/existent"}
+		args := []string{TestBackend + "/existent"}
 
 		if rc := c.Run(args); rc != 0 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
@@ -80,6 +76,10 @@ func TestDelete(t *testing.T) {
 		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
 			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
 		}*/
-
 	})
+
+	err = TeardownTestEnvironment()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
 }

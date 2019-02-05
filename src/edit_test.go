@@ -9,7 +9,7 @@ import (
 
 func TestEdit(t *testing.T) {
 
-	err := LoadConfig()
+	_, err := LoadConfig()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}

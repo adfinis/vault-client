@@ -11,12 +11,8 @@ import (
 
 func TestCopy(t *testing.T) {
 
-	err := LoadConfig()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
-
-	err = InitializeClient()
+	var err error
+	cfg, vc, err = SetupTestEnvironment()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
@@ -27,7 +23,7 @@ func TestCopy(t *testing.T) {
 	t.Run("TooFewArgs", func(t *testing.T) {
 
 		args := []string{
-			"secret/insertedsecret",
+			TestBackend + "/insertedsecret",
 		}
 
 		if rc := c.Run(args); rc != 1 {
@@ -43,8 +39,8 @@ func TestCopy(t *testing.T) {
 	t.Run("CopyNonexistentSourceSecret", func(t *testing.T) {
 
 		args := []string{
-			"secret/nonexistensecret",
-			"secret/destinationsecret",
+			TestBackend + "/nonexistensecret",
+			TestBackend + "/destinationsecret",
 		}
 
 		if rc := c.Run(args); rc != 1 {
@@ -63,14 +59,14 @@ func TestCopy(t *testing.T) {
 		data := make(map[string]interface{})
 		data["key"] = "value"
 
-		_, err = vc.Logical().Write("secret/existent", data)
+		_, err = vc.Logical().Write(TestBackend+"/existent", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
 
 		args := []string{
-			"secret/existent",
-			"secret/destinationsecret",
+			TestBackend + "/existent",
+			TestBackend + "/destinationsecret",
 		}
 
 		if rc := c.Run(args); rc != 0 {
@@ -83,8 +79,8 @@ func TestCopy(t *testing.T) {
 		}
 	})
 
-	_, err = vc.Logical().Delete("secret/destinationsecret")
+	err = TeardownTestEnvironment()
 	if err != nil {
-		t.Fatalf("Unable to clean up test secret: %q", err)
+		fmt.Fprintln(os.Stderr, err.Error())
 	}
 }
