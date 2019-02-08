@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	vault "github.com/hashicorp/vault/api"
 )
 
@@ -36,7 +37,18 @@ func (c *KvClientV1) Put(key string, value map[string]interface{}) error {
 	return nil
 }
 
-func (c *KvClientV1) Get(key string) (map[string]interface{}, error) { return nil, nil }
+func (c *KvClientV1) Get(key string) (map[string]interface{}, error) {
+	sec, err := c.client.Logical().Read(key)
+	if err != nil {
+		return nil, err
+	}
+
+	if sec == nil {
+		return nil, fmt.Errorf("Secret does not exist")
+	}
+
+	return sec.Data, nil
+}
 
 func (c *KvClientV1) Delete(key string) error { return nil }
 
