@@ -26,15 +26,15 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 test:  ## Runs all tests
-	GOPATH=$$(pwd) go test src/*.go
+	GOPATH=$$(pwd)/vendor go test src/*.go
 
 install-deps:  ## Installs go dependencies
 	for dep in $(GO_DEPENDENCIES); do \
-		GOPATH=$$(pwd) go get -v $$dep; \
+		GOPATH=$$(pwd)/vendor go get -v $$dep; \
 	done
 
 build: install-deps  ## Compiles the program
-	GOPATH=$$(pwd) go build -o vc src/*.go
+	GOPATH=$$(pwd)/vendor go build -o vc src/*.go
 
 install: build  ## Install vault-client
 	$(INSTALL) -Dm755 vc $(DESTDIR)$(bindir)/vc
