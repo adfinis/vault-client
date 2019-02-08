@@ -10,7 +10,7 @@ type KvClient interface {
 	Get(key string) (map[string]interface{}, error)
 	Delete(key string) error
 	List(key string) ([]string, error)
-	GetRawClient() *vault.Client
+	RawClient() *vault.Client
 }
 
 type KvClientV1 struct {
@@ -60,4 +60,4 @@ func (c *KvClientV1) Delete(key string) error {
 
 func (c *KvClientV1) List(key string) ([]string, error) { return nil, nil }
 
-func (c *KvClientV1) GetRawClient() *vault.Client { return c.client }
+func (c *KvClientV1) RawClient() *vault.Client { return c.client }

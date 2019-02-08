@@ -24,7 +24,7 @@ func TestKvClientV1(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		secret, err := kv.GetRawClient().Logical().Read(key)
+		secret, err := kv.RawClient().Logical().Read(key)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -41,7 +41,7 @@ func TestKvClientV1(t *testing.T) {
 		key := TestBackend + "/getsecret"
 		value := map[string]interface{}{"password": "test1234"}
 
-		_, err := kv.GetRawClient().Logical().Write(key, value)
+		_, err := kv.RawClient().Logical().Write(key, value)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -62,7 +62,7 @@ func TestKvClientV1(t *testing.T) {
 
 		key := TestBackend + "/deletesecret"
 		value := map[string]interface{}{"password": "test1234"}
-		_, err := kv.GetRawClient().Logical().Write(key, value)
+		_, err := kv.RawClient().Logical().Write(key, value)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -71,7 +71,7 @@ func TestKvClientV1(t *testing.T) {
 			t.Fatal()
 		}
 
-		secret, err := kv.GetRawClient().Logical().Read(key)
+		secret, err := kv.RawClient().Logical().Read(key)
 		if secret != nil {
 			t.Fatal()
 		}
