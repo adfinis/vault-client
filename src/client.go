@@ -27,7 +27,13 @@ func NewKvClientV1(cfg *vault.Config, token string) (*KvClientV1, error) {
 	return &KvClientV1{Client: c}, nil
 }
 
-func (c *KvClientV1) Put(key string, value map[string]interface{}) error { return nil }
+func (c *KvClientV1) Put(key string, value map[string]interface{}) error {
+	_, err := c.Client.Logical().Write(key, value)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func (c *KvClientV1) Get(key string) (map[string]interface{}, error) { return nil, nil }
 
