@@ -1,11 +1,6 @@
 # .gitignore
 
-/src/src
-
-# ignore builded stuff
-/pkg/
-/src/github.com/
-/src/gopkg.in/
+vendor/
 /vc
 /*.deb
 /build/

@@ -26,33 +26,19 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 test:  ## Runs all tests
-	GOPATH=$$(pwd) go test src/*.go
+	GOPATH=$$(pwd)/vendor go test src/*.go
 
 install-deps:  ## Installs go dependencies
 	for dep in $(GO_DEPENDENCIES); do \
-		GOPATH=$$(pwd) go get -v $$dep; \
+		GOPATH=$$(pwd)/vendor go get -v $$dep; \
 	done
 
 build: install-deps  ## Compiles the program
-	GOPATH=$$(pwd) go build -o vc src/*.go
+	GOPATH=$$(pwd)/vendor go build -o vc src/*.go
 
 install: build  ## Install vault-client
 	$(INSTALL) -Dm755 vc $(DESTDIR)$(bindir)/vc
 	$(INSTALL) -Dm644 sample/vc-completion.bash $(DESTDIR)$(datarootdir)/bash-completion/completions/vc
 	$(INSTALL) -Dm644 sample/vc-completion.zsh $(DESTDIR)$(datarootdir)/zsh/site-functions/_vc
-
-deb:  ## Create .deb package
-	mkdir -p build/usr/bin build/etc/bash_completion.d
-	install -Dm755 vc build/usr/bin/vc
-	install -Dm644 sample/vc-completion.bash build/etc/bash_completion.d/vc
-	fpm \
-	  -s dir \
-	  -t deb \
-	  -n $(PKGNAME) \
-	  -v $(VERSION) \
-	  -d $(DESCRIPTION) \
-	  -d bash-completion \
-	  -C build \
-	  .
 
 artifacts: build deb
