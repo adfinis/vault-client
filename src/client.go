@@ -50,7 +50,13 @@ func (c *KvClientV1) Get(key string) (map[string]interface{}, error) {
 	return sec.Data, nil
 }
 
-func (c *KvClientV1) Delete(key string) error { return nil }
+func (c *KvClientV1) Delete(key string) error {
+	_, err := c.client.Logical().Delete(key)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func (c *KvClientV1) List(key string) ([]string, error) { return nil, nil }
 

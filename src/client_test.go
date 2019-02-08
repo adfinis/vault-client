@@ -17,7 +17,7 @@ func TestKvClientV1(t *testing.T) {
 
 	t.Run("KvClientPut", func(t *testing.T) {
 
-		key := TestBackend + "/insertedsecret"
+		key := TestBackend + "/putsecret"
 		value := map[string]interface{}{"password": "test1234"}
 		err := kv.Put(key, value)
 		if err != nil {
@@ -33,6 +33,47 @@ func TestKvClientV1(t *testing.T) {
 		actual := secret.Data
 		if !reflect.DeepEqual(actual, expected) {
 			t.Fatalf("\nexpected:\n%q\n\nactual:\n%q", expected, actual)
+		}
+	})
+
+	t.Run("KvClientGet", func(t *testing.T) {
+
+		key := TestBackend + "/getsecret"
+		value := map[string]interface{}{"password": "test1234"}
+
+		_, err := kv.GetRawClient().Logical().Write(key, value)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		kvPairs, err := kv.Get(key)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		expected := value
+		actual := kvPairs
+		if !reflect.DeepEqual(actual, expected) {
+			t.Fatalf("\nexpected:\n%q\n\nactual:\n%q", expected, actual)
+		}
+	})
+
+	t.Run("KvClientDelete", func(t *testing.T) {
+
+		key := TestBackend + "/deletesecret"
+		value := map[string]interface{}{"password": "test1234"}
+		_, err := kv.GetRawClient().Logical().Write(key, value)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if kv.Delete(key) != nil {
+			t.Fatal()
+		}
+
+		secret, err := kv.GetRawClient().Logical().Read(key)
+		if secret != nil {
+			t.Fatal()
 		}
 	})
 
