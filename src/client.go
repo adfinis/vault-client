@@ -9,10 +9,11 @@ type KvClient interface {
 	Get(key string) (map[string]interface{}, error)
 	Delete(key string) error
 	List(key string) ([]string, error)
+	GetRawClient() *vault.Client
 }
 
 type KvClientV1 struct {
-	Client *vault.Client
+	client *vault.Client
 }
 
 func NewKvClientV1(cfg *vault.Config, token string) (*KvClientV1, error) {
@@ -24,11 +25,11 @@ func NewKvClientV1(cfg *vault.Config, token string) (*KvClientV1, error) {
 	c.SetToken(token)
 	c.Auth()
 
-	return &KvClientV1{Client: c}, nil
+	return &KvClientV1{client: c}, nil
 }
 
 func (c *KvClientV1) Put(key string, value map[string]interface{}) error {
-	_, err := c.Client.Logical().Write(key, value)
+	_, err := c.client.Logical().Write(key, value)
 	if err != nil {
 		return err
 	}
@@ -40,3 +41,5 @@ func (c *KvClientV1) Get(key string) (map[string]interface{}, error) { return ni
 func (c *KvClientV1) Delete(key string) error { return nil }
 
 func (c *KvClientV1) List(key string) ([]string, error) { return nil, nil }
+
+func (c *KvClientV1) GetRawClient() *vault.Client { return c.client }
