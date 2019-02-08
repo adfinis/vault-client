@@ -41,18 +41,4 @@ install: build  ## Install vault-client
 	$(INSTALL) -Dm644 sample/vc-completion.bash $(DESTDIR)$(datarootdir)/bash-completion/completions/vc
 	$(INSTALL) -Dm644 sample/vc-completion.zsh $(DESTDIR)$(datarootdir)/zsh/site-functions/_vc
 
-deb:  ## Create .deb package
-	mkdir -p build/usr/bin build/etc/bash_completion.d
-	install -Dm755 vc build/usr/bin/vc
-	install -Dm644 sample/vc-completion.bash build/etc/bash_completion.d/vc
-	fpm \
-	  -s dir \
-	  -t deb \
-	  -n $(PKGNAME) \
-	  -v $(VERSION) \
-	  -d $(DESCRIPTION) \
-	  -d bash-completion \
-	  -C build \
-	  .
-
 artifacts: build deb
