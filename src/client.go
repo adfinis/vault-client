@@ -43,6 +43,7 @@ func (c *KvClientV1) Get(key string) (map[string]interface{}, error) {
 		return nil, err
 	}
 
+	// TODO: Introduce new error type ErrSecretDoesNotExist
 	if sec == nil {
 		return nil, fmt.Errorf("Secret does not exist")
 	}
