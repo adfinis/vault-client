@@ -22,12 +22,12 @@ func (c *InsertCommand) Run(args []string) int {
 	data := make(map[string]interface{})
 
 	for _, v := range args[1:] {
-		kvpair := strings.SplitN(v, "=", 2)
-		if len(kvpair) < 2 || len(kvpair) > 2 {
+		kvPair := strings.SplitN(v, "=", 2)
+		if len(kvPair) < 2 || len(kvPair) > 2 {
 			c.Ui.Error(fmt.Sprintf("Invalid key/value arguments: %q", v))
 			return 1
 		}
-		data[kvpair[0]] = kvpair[1]
+		data[kvPair[0]] = kvPair[1]
 	}
 
 	err := kv.Put(path, data)
