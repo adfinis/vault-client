@@ -49,7 +49,7 @@ func (c *ListCommand) Run(args []string) int {
 			return 1
 		}
 	} else {
-		paths, err = ListSecrets(path)
+		paths, err = kv.List(path)
 		if err != nil {
 			c.Ui.Error(CheckError(err, fmt.Sprintf("Unable to list path: %q", err)))
 			return 1
@@ -84,7 +84,7 @@ func RecursivelyListSecrets(path string) ([]string, error) {
 	// Could be secrets or backends...
 	var items []string
 
-	secrets, err := ListSecrets(path)
+	secrets, err := kv.List(path)
 	if err != nil {
 		return nil, err
 	}
@@ -114,63 +114,4 @@ func RecursivelyListSecrets(path string) ([]string, error) {
 
 	return items, err
 
-}
-
-func ListSecrets(path string) ([]string, error) {
-
-	// Could be secrets or backends...
-	var items []string
-	var err error
-
-	// Vault can have multiple backends mounted at different paths (e.g "/customer1", "/customer2"...).
-	// `vc` only cares about generic backends.
-	if path == "/" || path == "" {
-
-		items, err = ListKvBackends()
-		if err != nil {
-			return nil, err
-		}
-
-	} else {
-
-		secret, err := vc.Logical().List(path)
-		if err != nil {
-			return nil, err
-		}
-
-		if secret == nil {
-			return nil, nil
-		}
-
-		for _, path := range secret.Data {
-			// expecting "[secret0 secret1 secret2...]"
-			//
-			// if the name both exists as directory and as file
-			// e.g. "/secret/" and "/secret" it will print an empty line
-			items = strings.Split(strings.Trim(fmt.Sprint(path), "[]"), " ")
-		}
-	}
-
-	return items, nil
-}
-
-// Returns the paths to all of all kv backends.
-func ListKvBackends() ([]string, error) {
-
-	mounts, err := vc.Sys().ListMounts()
-	if err != nil {
-		return nil, err
-	}
-
-	var backends []string
-
-	for x, i := range mounts {
-		// With the 0.8.3 release of vault the "generic" backend was renamed to "kv". For backwards
-		// compatibility consider both of them
-		if i.Type == "kv" || i.Type == "generic" {
-			backends = append(backends, x)
-		}
-	}
-
-	return backends, nil
 }
