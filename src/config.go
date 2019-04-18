@@ -49,12 +49,11 @@ func LoadConfig() (Config, error) {
 		return cfg, err
 	}
 
-	config_file_permissions := file.Mode().String()
-
-	// Check that the config file is only readable by the user.
+	// Ensure that the config file is only readable by the user.
 	// And not by his group or others (-rwx------)
-	if !strings.HasSuffix(config_file_permissions, "------") {
-		return cfg, fmt.Errorf("Your ~/.vaultrc is accessible for others (chmod 700 ~/.vaultrc)")
+	cfgFilePerm := file.Mode().String()
+	if !strings.HasSuffix(cfgFilePerm, "------") {
+		return cfg, fmt.Errorf("Your config file %q is accessible by others.\nYou can fix this by issuing:\n\n  $ chmod 700 %q\n", cfg.Path, cfg.Path)
 	}
 
 	content, err := ioutil.ReadFile(cfg.Path)
