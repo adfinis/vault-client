@@ -55,7 +55,7 @@ a container running the vault server:
 ```
 $ docker-compose up
 ```
-2. You also need a minimal vaultrc that points to vault running inside the docker container:
+2. You also need a minimal `.vaultrc` that points to vault running inside the docker container:
 ```
 $ echo "host: 127.0.0.1
 port: 8200
