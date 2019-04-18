@@ -125,20 +125,20 @@ func UpdateConfigToken(token string) error {
 
 func GetConfigPath() (string, error) {
 
-	path, err := filepath.Abs(os.Getenv("VAULT_CLIENT_CONFIG"))
-	if err != nil {
-		return "", errors.New("Unable to determine absolute path to config specified in $VAULT_CLIENT_CONFIG")
-	}
+	path := os.Getenv("VAULT_CLIENT_CONFIG")
 
 	if path != "" {
-		return path, nil
-	} else {
-
-		usr, err := user.Current()
+		path, err := filepath.Abs(path)
 		if err != nil {
-			return "", err
+			return "", errors.New("Unable to determine absolute path to config specified in $VAULT_CLIENT_CONFIG")
 		}
-
-		return usr.HomeDir + "/.vaultrc", nil
+		return path, nil
 	}
+
+	usr, err := user.Current()
+	if err != nil {
+		return "", errors.New("Unable to determine user home to locate ~/.vaultrc")
+	}
+
+	return usr.HomeDir + "/.vaultrc", nil
 }
