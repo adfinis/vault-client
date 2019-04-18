@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -124,7 +126,10 @@ func UpdateConfigToken(token string) error {
 
 func GetConfigPath() (string, error) {
 
-	path := os.Getenv("VAULT_CLIENT_CONFIG")
+	path, err := filepath.Abs(os.Getenv("VAULT_CLIENT_CONFIG"))
+	if err != nil {
+		return "", errors.New("Unable to determine absolute path to config specified in $VAULT_CLIENT_CONFIG")
+	}
 
 	if path != "" {
 		return path, nil
