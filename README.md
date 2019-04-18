@@ -64,7 +64,7 @@ token: password
 
 $ chmod 600 ~/.vaultrc
 ```
-3. Finally you want to export the path of your development vaultrc as an environment variable:
+3. Finally you want to export the path of your development `.vaultrc` as an environment variable:
 ```
 $ cd vault-client
 $ export VAULT_CLIENT_CONFIG="${PWD}/.vaultrc"
