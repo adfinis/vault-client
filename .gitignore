@@ -1,5 +1,6 @@
 # .gitignore
 
+.vaultrc
 vendor/
 /vc
 /*.deb

@@ -48,10 +48,35 @@ verify_tls: <true|false>" >  ~/.vaultrc
 $ chmod 600 ~/.vaultrc
 ```
 
+Development
+-----------
+1. To hack on vault-client you need `docker` and `docker-compose`. This allows you to easily spin up
+a container running the vault server:
+```
+$ docker-compose up
+```
+2. You also need a minimal `.vaultrc` that points to vault running inside the docker container:
+```
+$ echo "host: 127.0.0.1
+port: 8200
+tls: false
+token: password
+
+$ chmod 600 ~/.vaultrc
+```
+3. Finally you want to export the path of your development `.vaultrc` as an environment variable:
+```
+$ cd vault-client
+$ export VAULT_CLIENT_CONFIG="${PWD}/.vaultrc"
+```
+4. You should now be able to run the test suite:
+```
+$ make test
+```
+
 Contributions
 -------------
-Contributions are more than welcome! Please feel free to open new issues or
-pull requests.
+Contributions are more than welcome! Please feel free to open new issues or pull requests.
 
 License
 -------
