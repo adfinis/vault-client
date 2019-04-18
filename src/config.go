@@ -49,12 +49,11 @@ func LoadConfig() (Config, error) {
 		return cfg, err
 	}
 
-	config_file_permissions := file.Mode().String()
-
-	// Check that the config file is only readable by the user.
+	// Ensure that the config file is only readable by the user.
 	// And not by his group or others (-rwx------)
-	if !strings.HasSuffix(config_file_permissions, "------") {
-		return cfg, fmt.Errorf("Your ~/.vaultrc is accessible for others (chmod 700 ~/.vaultrc)")
+	cfgFilePerm := file.Mode().String()
+	if !strings.HasSuffix(cfgFilePerm, "------") {
+		return cfg, fmt.Errorf("Your config file %q is accessible by others.\nYou can fix this by issuing:\n\n  $ chmod 700 %q\n", cfg.Path, cfg.Path)
 	}
 
 	content, err := ioutil.ReadFile(cfg.Path)
@@ -126,20 +125,20 @@ func UpdateConfigToken(token string) error {
 
 func GetConfigPath() (string, error) {
 
-	path, err := filepath.Abs(os.Getenv("VAULT_CLIENT_CONFIG"))
-	if err != nil {
-		return "", errors.New("Unable to determine absolute path to config specified in $VAULT_CLIENT_CONFIG")
-	}
+	path := os.Getenv("VAULT_CLIENT_CONFIG")
 
 	if path != "" {
-		return path, nil
-	} else {
-
-		usr, err := user.Current()
+		path, err := filepath.Abs(path)
 		if err != nil {
-			return "", err
+			return "", errors.New("Unable to determine absolute path to config specified in $VAULT_CLIENT_CONFIG")
 		}
-
-		return usr.HomeDir + "/.vaultrc", nil
+		return path, nil
 	}
+
+	usr, err := user.Current()
+	if err != nil {
+		return "", errors.New("Unable to determine user home to locate ~/.vaultrc")
+	}
+
+	return usr.HomeDir + "/.vaultrc", nil
 }
