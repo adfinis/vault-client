@@ -62,20 +62,15 @@ func TestDelete(t *testing.T) {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
 
-		ui := new(cli.MockUi)
-		c := &DeleteCommand{Ui: ui}
-
 		args := []string{TestBackend + "/existent"}
-
 		if rc := c.Run(args); rc != 0 {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
 		}
 
-		/* TODO: Fix nil pointer exception
 		expected := ""
 		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
 			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
-		}*/
+		}
 	})
 
 	err = TeardownTestEnvironment()
