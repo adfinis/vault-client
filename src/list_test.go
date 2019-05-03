@@ -71,8 +71,17 @@ secret3`
 
 	})
 
-	t.Run("ListExistingSecretsRecusively", func(t *testing.T) {
+	t.Run("ListExistingSecretsRecursively", func(t *testing.T) {
 
+		data := make(map[string]interface{})
+		data["key"] = "value"
+
+		for i := 1; i <= 3; i++ {
+			err = kv.Put(fmt.Sprintf(TestBackend+"/secret%v", i), data)
+			if err != nil {
+				t.Fatalf("Unable to write test secret: %q", err)
+			}
+		}
 		args := []string{"-r", ""}
 
 		if rc := c.Run(args); rc != 0 {
