@@ -77,6 +77,33 @@ func TestKvClientV1(t *testing.T) {
 		}
 	})
 
+	t.Run("KvClientList", func(t *testing.T) {
+
+		keys := []string{
+			TestBackend + "/list/listsecret1",
+			TestBackend + "/list/listsecret2",
+			TestBackend + "/list/nested/listsecret3",
+		}
+		value := map[string]interface{}{"password": "test1234"}
+		for _, key := range keys {
+			_, err := kv.RawClient().Logical().Write(key, value)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+
+		expected := []string{"listsecret1", "listsecret2", "nested/"}
+
+		actual, err := kv.List(TestBackend + "/list/")
+		if err != nil {
+			t.Fatal()
+		}
+
+		if !reflect.DeepEqual(actual, expected) {
+			t.Fatalf("\nexpected:\n%q\n\nactual:\n%q", expected, actual)
+		}
+	})
+
 	err = TeardownTestEnvironment()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
