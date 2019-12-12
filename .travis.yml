@@ -32,6 +32,7 @@ before_script:
   - vault secrets enable -path=secret/ -version=1 kv
 
 script:
+  - vault secrets list -detailed
   - make test
 
 deploy:
