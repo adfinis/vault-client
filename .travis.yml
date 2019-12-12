@@ -20,7 +20,7 @@ before_install:
   - sudo unzip vault_${VAULT_VERSION}_linux_amd64.zip -d /usr/local/bin
 
 install:
-  - make install-deps
+  - make build
 
 before_script:
   - vault server -dev -dev-root-token-id="password" &
@@ -29,11 +29,10 @@ before_script:
   - sleep 1
   - vault login password
   - vault secrets disable secret/
-  - vault secrets enable -path=secret/ kv
+  - vault secrets enable -path=secret/ -version=1 kv
 
 script:
   - make test
-  - make build
 
 deploy:
   provider: releases
