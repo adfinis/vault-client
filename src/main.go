@@ -11,6 +11,7 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+var kv KvClient
 var vc *vault.Client
 var cfg Config
 
@@ -52,6 +53,11 @@ func InitializeClient() (*vault.Client, error) {
 	}
 
 	var err error
+
+	kv, err = NewKvClientV1(&config, cfg.Token)
+	if err != nil {
+		return vc, err
+	}
 
 	vc, err = vault.NewClient(&config)
 	if err != nil {

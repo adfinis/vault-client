@@ -18,6 +18,9 @@ func SetupTestEnvironment() (Config, *vault.Client, error) {
 		return cfg, client, err
 	}
 
+	// Ensure that test backend does not exist
+	vc.Sys().Unmount(TestBackend)
+
 	mountConfig := vault.MountInput{
 		Type:        "kv",
 		Description: "vault-client integration tests",

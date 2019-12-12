@@ -45,7 +45,7 @@ func TestShow(t *testing.T) {
 		data := make(map[string]interface{})
 		data["key"] = "value"
 
-		_, err = vc.Logical().Write(TestBackend+"/secret1", data)
+		err = kv.Put(TestBackend+"/secret1", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
@@ -75,7 +75,7 @@ func TestShow(t *testing.T) {
 		data["c_key"] = "value"
 		data["b_key"] = "value"
 
-		_, err = vc.Logical().Write(TestBackend+"/secret1", data)
+		err = kv.Put(TestBackend+"/secret1", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}

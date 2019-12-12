@@ -50,26 +50,48 @@ $ chmod 600 ~/.vaultrc
 
 Development
 -----------
-1. To hack on vault-client you need `docker` and `docker-compose`. This allows you to easily spin up
-a container running the vault server:
+
+1. To work on vc you need `docker` and `docker-compose`. This allows you to
+   easily spin up a container running the vault server. It also ensures that all
+   developers are developing against the same vault version:
+
 ```
 $ docker-compose up
 ```
-2. You also need a minimal `.vaultrc` that points to vault running inside the docker container:
+
+2. You can than mount different key/value backends as you please:
+
+```
+# KV Version 1
+$ docker-compose exec vault vault secrets enable -version=1 -path test kv
+
+# KV Version 2
+$ docker-compose exec vault vault secrets enable -path test2 kv
+```
+
+> We do not not use mocks. Instead the test suite run against a
+> key/value backend which gets mountend on `/test`.
+
+3. You also need a minimal `.vaultrc` that points to vault running inside the docker container:
+
 ```
 $ echo "host: 127.0.0.1
 port: 8200
 tls: false
-token: password
+token: password" > .vaultrc
 
 $ chmod 600 ~/.vaultrc
 ```
-3. Finally you want to export the path of your development `.vaultrc` as an environment variable:
+
+4. Finally you need to export the path of your development `.vaultrc` as an
+   environment variable:
+
 ```
-$ cd vault-client
 $ export VAULT_CLIENT_CONFIG="${PWD}/.vaultrc"
 ```
-4. You should now be able to run the test suite:
+
+5. You should now be able to run the test suite:
+
 ```
 $ make test
 ```

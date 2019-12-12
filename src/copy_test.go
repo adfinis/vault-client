@@ -47,7 +47,7 @@ func TestCopy(t *testing.T) {
 			t.Fatalf("Wrong exit code. errors: \n%s", ui.ErrorWriter.String())
 		}
 
-		expected := "Source secret doesn't exist"
+		expected := "Secret does not exist"
 		if actual := ui.ErrorWriter.String(); !strings.Contains(actual, expected) {
 			t.Fatalf("expected:\n%s\n\nto include: %q", actual, expected)
 		}
@@ -55,11 +55,10 @@ func TestCopy(t *testing.T) {
 
 	t.Run("CopyExistentSourceSecret", func(t *testing.T) {
 
-		// Create test secret
 		data := make(map[string]interface{})
 		data["key"] = "value"
 
-		_, err = vc.Logical().Write(TestBackend+"/existent", data)
+		err = kv.Put(TestBackend+"/existent", data)
 		if err != nil {
 			t.Fatalf("Unable to write test secret: %q", err)
 		}
