@@ -1,6 +1,0 @@
-host: 127.0.0.1
-port: 8200
-auth_method: token
-auth_backend: token
-tls: false
-verify_tls: false
