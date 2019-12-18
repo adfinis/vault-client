@@ -1,0 +1,3 @@
+hvac==0.9.6
+Click==7.0
+PyYAML==5.2
