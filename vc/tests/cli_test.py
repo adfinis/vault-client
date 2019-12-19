@@ -27,11 +27,11 @@ def test_show(run_cmd, command, backend, path, rc, output):
         ("show", []),
         ("cp", ["othersecret"]),
         ("mv", ["othersecret"]),
-        ("insert", ["key=val"])
-    ]
+        ("insert", ["key=val"]),
+    ],
 )
 def test_nonexistent_mountpoint(run_cmd, command, args):
     path = "nonexistent/secret"
     result = run_cmd([command, path, *args])
     assert result.exit_code == 1
-    assert result.output.endswith('is not under a valid mount point.\n')
+    assert result.output.endswith("is not under a valid mount point.\n")

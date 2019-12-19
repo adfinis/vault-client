@@ -10,27 +10,24 @@ from vc.config import update_config_token
 def cli():
     pass
 
+
 @cli.command()
-@click.option('--password', prompt=True, hide_input=True)
+@click.option("--password", prompt=True, hide_input=True)
 @click.pass_context
 def login(ctx, password):
-    client = ctx.obj['client']
-    config = ctx.obj['config']
+    client = ctx.obj["client"]
+    config = ctx.obj["config"]
 
-    token = client.login(
-        config['user'],
-        password,
-        config['auth_mount_path']
-    )
+    token = client.login(config["user"], password, config["auth_mount_path"])
 
     update_config_token(token)
 
 
 @cli.command()
-@click.argument('query')
+@click.argument("query")
 @click.pass_context
 def search(ctx, query):
-    client = ctx.obj['client']
+    client = ctx.obj["client"]
     try:
         paths = client.traverse()
     except hvac.exceptions.InvalidPath:
@@ -55,11 +52,12 @@ def search(ctx, query):
         for path in results:
             click.echo(path)
 
+
 @cli.command()
-@click.argument('path')
+@click.argument("path")
 @click.pass_context
 def show(ctx, path):
-    client = ctx.obj['client']
+    client = ctx.obj["client"]
     try:
         secret = client.get(path)
         click.echo(yaml.dump(secret))
@@ -70,12 +68,13 @@ def show(ctx, path):
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
         exit(1)
 
+
 @cli.command()
-@click.argument('src')
-@click.argument('dest')
+@click.argument("src")
+@click.argument("dest")
 @click.pass_context
 def mv(ctx, src, dest):
-    client = ctx.obj['client']
+    client = ctx.obj["client"]
     try:
         secret = client.get(src)
     except hvac.exceptions.InvalidPath:
@@ -87,8 +86,8 @@ def mv(ctx, src, dest):
 
     try:
         secret = client.get(dest)
-        click.echo('The destination secret already exists.')
-        if not click.confirm('Do you want overwrite it?', abort=True):
+        click.echo("The destination secret already exists.")
+        if not click.confirm("Do you want overwrite it?", abort=True):
             return
 
         client.delete(dest)
@@ -101,14 +100,15 @@ def mv(ctx, src, dest):
 
     client.put(dest, secret)
     client.delete(src)
-    click.echo('Secret successfully moved!')
+    click.echo("Secret successfully moved!")
+
 
 @cli.command()
-@click.argument('src')
-@click.argument('dest')
+@click.argument("src")
+@click.argument("dest")
 @click.pass_context
 def cp(ctx, src, dest):
-    client = ctx.obj['client']
+    client = ctx.obj["client"]
     try:
         secret = client.get(src)
     except hvac.exceptions.InvalidPath:
@@ -121,8 +121,8 @@ def cp(ctx, src, dest):
 
     try:
         secret = client.get(dest)
-        click.echo('The destination secret already exists.')
-        if not click.confirm('Do you want overwrite it?', abort=True):
+        click.echo("The destination secret already exists.")
+        if not click.confirm("Do you want overwrite it?", abort=True):
             return
 
         client.delete(dest)
@@ -130,17 +130,20 @@ def cp(ctx, src, dest):
         pass
 
     except MountNotFound:
-        click.echo(f'Destination path "{path}" is not under a valid mount point.', err=True)
+        click.echo(
+            f'Destination path "{path}" is not under a valid mount point.', err=True
+        )
         exit(1)
 
     client.put(dest, secret)
-    click.echo('Secret successfully copied!')
+    click.echo("Secret successfully copied!")
+
 
 @cli.command()
-@click.argument('path')
+@click.argument("path")
 @click.pass_context
 def edit(ctx, path):
-    client = ctx.obj['client']
+    client = ctx.obj["client"]
     secret = {}
     try:
         secret = client.get(path)
@@ -162,16 +165,15 @@ def edit(ctx, path):
 
 
 @cli.command()
-@click.argument('path')
-@click.argument('data')
+@click.argument("path")
+@click.argument("data")
 @click.pass_context
 def insert(ctx, path, data):
-    client = ctx.obj['client']
+    client = ctx.obj["client"]
     kv_pair = data.split("=")
     if len(kv_pair) != 2:
         click.echo("Data is not a valid key/value pair.", err=True)
         return
-
 
     try:
         secret = client.put(path, {kv_pair[0]: kv_pair[1]})
@@ -183,12 +185,13 @@ def insert(ctx, path, data):
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
         exit(1)
 
+
 @cli.command()
-@click.argument('path', required=False)
-@click.option('-r', '--recursive/--no-recursive', default=False)
+@click.argument("path", required=False)
+@click.option("-r", "--recursive/--no-recursive", default=False)
 @click.pass_context
 def list(ctx, path, recursive):
-    client = ctx.obj['client']
+    client = ctx.obj["client"]
     try:
         if recursive:
             paths = client.traverse(path)
@@ -204,11 +207,12 @@ def list(ctx, path, recursive):
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
         exit(1)
 
+
 @cli.command()
-@click.argument('path', required=False)
+@click.argument("path", required=False)
 @click.pass_context
 def delete(ctx, path):
-    client = ctx.obj['client']
+    client = ctx.obj["client"]
     try:
         client.get(path)
         client.delete(path)
