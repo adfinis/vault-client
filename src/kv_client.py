@@ -13,12 +13,14 @@ class KvClient():
     """hvac client wrapper that transparently can deal with different version of
     of vault"""
 
-    def __init__(self, url):
-        self.client = hvac.Client(url)
+    def __init__(self, url, verify_tls=True):
+        self.client = hvac.Client(
+            url,
+            verify=verify_tls
+        )
 
     @contextmanager
     def vault_path(self, path):
-
         kv_mounts = self._get_kv_mounts()
         match = ""
         for m in kv_mounts.keys():
