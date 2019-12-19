@@ -170,13 +170,15 @@ def edit(ctx, path):
 @click.pass_context
 def insert(ctx, path, data):
     client = ctx.obj["client"]
-    kv_pair = data.split("=")
-    if len(kv_pair) != 2:
-        click.echo("Data is not a valid key/value pair.", err=True)
-        return
 
     try:
-        secret = client.put(path, {kv_pair[0]: kv_pair[1]})
+        key, value = data.split("=")
+    except ValueError as e:
+        click.echo(f'Data "{data}" is not a valid key/value pair.', err=True)
+        exit(1)
+
+    try:
+        secret = client.put(path, {key: value})
         click.echo("Secret successfully inserted!")
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not exist.', err=True)
