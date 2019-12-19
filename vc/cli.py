@@ -35,8 +35,10 @@ def search(ctx, query):
         paths = client.traverse()
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not exist.', err=True)
+        exit(1)
     except MountNotFound:
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
+        exit(1)
 
     results = []
     for path in paths:
@@ -63,8 +65,10 @@ def show(ctx, path):
         click.echo(yaml.dump(secret))
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not exist.', err=True)
+        exit(1)
     except MountNotFound:
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
+        exit(1)
 
 @cli.command()
 @click.argument('src')
@@ -79,7 +83,7 @@ def mv(ctx, src, dest):
         return
     except MountNotFound:
         click.echo(f'Source path "{src}" is not under a valid mount point.', err=True)
-        return
+        exit(1)
 
     try:
         secret = client.get(dest)
@@ -93,7 +97,7 @@ def mv(ctx, src, dest):
 
     except MountNotFound:
         click.echo(f'Source path "{path}" is not under a valid mount point.', err=True)
-        return
+        exit(1)
 
     client.put(dest, secret)
     client.delete(src)
@@ -109,10 +113,11 @@ def cp(ctx, src, dest):
         secret = client.get(src)
     except hvac.exceptions.InvalidPath:
         click.echo(f'Source path "{src}" does not exist.', err=True)
-        return
+        exit(1)
+
     except MountNotFound:
         click.echo(f'Source path "{src}" is not under a valid mount point.', err=True)
-        return
+        exit(1)
 
     try:
         secret = client.get(dest)
@@ -126,7 +131,7 @@ def cp(ctx, src, dest):
 
     except MountNotFound:
         click.echo(f'Destination path "{path}" is not under a valid mount point.', err=True)
-        return
+        exit(1)
 
     client.put(dest, secret)
     click.echo('Secret successfully copied!')
@@ -141,9 +146,10 @@ def edit(ctx, path):
         secret = client.get(path)
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not yet exist. Creating a new secret.')
+        exit(1)
     except MountNotFound:
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
-        return
+        exit(1)
 
     if secret:
         edited = click.edit(yaml.dump(secret))
@@ -172,8 +178,10 @@ def insert(ctx, path, data):
         click.echo("Secret successfully inserted!")
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not exist.', err=True)
+        exit(1)
     except MountNotFound:
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
+        exit(1)
 
 @cli.command()
 @click.argument('path', required=False)
@@ -191,8 +199,10 @@ def list(ctx, path, recursive):
             click.echo(p)
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not exist.', err=True)
+        exit(1)
     except MountNotFound:
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
+        exit(1)
 
 @cli.command()
 @click.argument('path', required=False)
@@ -205,5 +215,7 @@ def delete(ctx, path):
         click.echo("Secret successfully deleted")
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not exist.', err=True)
+        exit(1)
     except MountNotFound:
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
+        exit(1)
