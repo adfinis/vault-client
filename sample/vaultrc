@@ -1,7 +1,7 @@
-host: 127.0.0.1
+host: localhost
 port: 8200
-token: $PASSWORD
-auth_backend: token
-auth_method: token
+token: password
 tls: false
 verify_tls: false
+user: user
+auth_mount_path: ldap
