@@ -1,6 +1,8 @@
-language: go
-
-go: 1.11.5
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
 
 sudo: required
 
@@ -20,27 +22,22 @@ before_install:
   - sudo unzip vault_${VAULT_VERSION}_linux_amd64.zip -d /usr/local/bin
 
 install:
-  - make install-deps
+  - pip install -r requirements.txt
 
 before_script:
   - vault server -dev -dev-root-token-id="password" &
   # Remount secret engine with kv version 1
   - export VAULT_ADDR="http://127.0.0.1:8200"
-  - sleep 1
-  - vault login password
-  - vault secrets disable secret/
-  - vault secrets enable -path=secret/ kv
 
 script:
-  - make test
-  - make build
+  - pytest
 
-deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: H514x+zUvUtT2xeJmqIanrMXtsvGroA/Bk5eAwNkVbz+2bL9Aj9tUSSpTvMka34lo+IdBDK0lpITDNooEmdlyCPRtJx/wAavSjKTquq+K0isXXCv4m/w7L3Gxhd5Xwq1ZEg4gB3cyQOoRTSLeopWqtx1EJ0gnF7MZL4IQ93zJL44YYBDVCp0mPoBOKmk6k6+vWhvmkHyepIGNriXM4kwm69mByrRdUb+YTyYl0wBKV7jW6zuoiWX2srFkArP1tyB4kc0Gc8+SIzoB1DykFw99cmN2H3DS5acG6omindaWE1izFodsv/Ar5B66mKCxd8AVPNGNe548PJl9FEW2pMF2P++4oQthu5vBDFx85h7ecvj/xBpObnPldxty4gn371ee0BwCDwTMoXKBupwJmbOwD5UE5ibxGNVj3n0YnrwCJ+56eUzibuCsLTI2/TvfJLp/nKKZtFFS5xmhvIGJR5+xT6+th8dG5DgpGGYJ36sTEwBcGBplSvqsF3iSb1dE8hpNN8/rTi43z5kPm4B90+17nS7LzvfLQozMChLru5xRD2WocwzkNUa9qST2qaJbkSvq9UMZepkKsuvC7qtoQhMesbwzFgTNEBsqHp61q6RIJYOh9enHjf6ejyE2YAksQLTOBK/hOp/RL1vk6f7lhpL/UX5lHVnE+qUZrQ8e+KQcfM=
-  file:
-    - vc
-  on:
-    tags: true
+# deploy:
+#   provider: releases
+#   skip_cleanup: true
+#   api_key:
+#     secure: H514x+zUvUtT2xeJmqIanrMXtsvGroA/Bk5eAwNkVbz+2bL9Aj9tUSSpTvMka34lo+IdBDK0lpITDNooEmdlyCPRtJx/wAavSjKTquq+K0isXXCv4m/w7L3Gxhd5Xwq1ZEg4gB3cyQOoRTSLeopWqtx1EJ0gnF7MZL4IQ93zJL44YYBDVCp0mPoBOKmk6k6+vWhvmkHyepIGNriXM4kwm69mByrRdUb+YTyYl0wBKV7jW6zuoiWX2srFkArP1tyB4kc0Gc8+SIzoB1DykFw99cmN2H3DS5acG6omindaWE1izFodsv/Ar5B66mKCxd8AVPNGNe548PJl9FEW2pMF2P++4oQthu5vBDFx85h7ecvj/xBpObnPldxty4gn371ee0BwCDwTMoXKBupwJmbOwD5UE5ibxGNVj3n0YnrwCJ+56eUzibuCsLTI2/TvfJLp/nKKZtFFS5xmhvIGJR5+xT6+th8dG5DgpGGYJ36sTEwBcGBplSvqsF3iSb1dE8hpNN8/rTi43z5kPm4B90+17nS7LzvfLQozMChLru5xRD2WocwzkNUa9qST2qaJbkSvq9UMZepkKsuvC7qtoQhMesbwzFgTNEBsqHp61q6RIJYOh9enHjf6ejyE2YAksQLTOBK/hOp/RL1vk6f7lhpL/UX5lHVnE+qUZrQ8e+KQcfM=
+#   file:
+#     - vc
+#   on:
+#     tags: true
