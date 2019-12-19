@@ -1,12 +1,30 @@
 import click
 import hvac
+import yaml
 
 from kv_client import MountNotFound
+from config import update_config_token
 
 
 @click.group()
 def cli():
     pass
+
+@cli.command()
+@click.option('--password', prompt=True, hide_input=True)
+@click.pass_context
+def login(ctx, password):
+    client = ctx.obj['client']
+    config = ctx.obj['config']
+
+    token = client.login(
+        config['user'],
+        password,
+        config['auth_mount_path']
+    )
+
+    update_config_token(token)
+
 
 @cli.command()
 @click.argument('query')

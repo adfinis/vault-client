@@ -9,6 +9,9 @@ VaultPath = namedtuple('VaultPath', ["mount_path", "secret_path", "kv_version"])
 class MountNotFound(Exception):
     pass
 
+class LoginFailed(Exception):
+    pass
+
 class KvClient():
     """hvac client wrapper that transparently can deal with different version of
     of vault"""
@@ -48,6 +51,26 @@ class KvClient():
     def _get_kv_mounts(self):
         mounts = self.client.sys.list_mounted_secrets_engines()['data']
         return {k: v for k, v in mounts.items() if v['type'] == 'kv'}
+
+    def set_token(self, token):
+        self.client.token = token
+        if not self.client.is_authenticated():
+            raise LoginFailed(resp)
+
+    def login(self, user, password, mount_point):
+        try:
+            resp = self.client.auth.ldap.login(
+                username=user,
+                password=password,
+                mount_point=mount_point
+            )
+        except hvac.exceptions.InvalidRequest as e:
+            raise LoginFailed(e)
+
+        if not self.client.is_authenticated():
+            raise LoginFailed(resp)
+
+        return resp['auth']['client_token']
 
     def get(self, path):
 
