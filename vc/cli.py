@@ -2,8 +2,8 @@ import click
 import hvac
 import yaml
 
-from kv_client import MountNotFound
-from config import update_config_token
+from vc.kv_client import MountNotFound
+from vc.config import update_config_token
 
 
 @click.group()

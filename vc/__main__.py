@@ -1,6 +1,6 @@
-from cli import cli
-from config import load_config
-from kv_client import KvClient
+from vc.cli import cli
+from vc.config import load_config
+from vc.kv_client import KvClient
 
 
 config = load_config()
