@@ -12,7 +12,7 @@ import re
         ("show", "nonexistent", 1, 'Path ".*" does not exist.\n'),
     ],
 )
-def test_commands(run_cmd, command, backend, path, rc, output):
+def test_show(run_cmd, command, backend, path, rc, output):
     result = run_cmd([command, f"{backend}/{path}"])
     assert result.exit_code == rc
     assert re.match(output, result.output)
