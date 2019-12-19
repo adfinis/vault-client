@@ -90,13 +90,8 @@ def config():
 
 @pytest.fixture()
 def kv_client(config):
-    if config.get('tls'):
-        protocol = 'https'
-    else:
-        protocol = 'http'
-
+    protocol = 'https' if config.get('tls') else 'http'
     url = f"{protocol}://{config['host']}:{config['port']}"
-
     client = KvClient(
         url,
         config.get('verify_tls')
