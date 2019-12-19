@@ -159,7 +159,7 @@ def insert(ctx, path, data):
 
 @cli.command()
 @click.argument('path', required=False)
-@click.option('-r', '--recursive', default=False)
+@click.option('-r', '--recursive/--no-recursive', default=False)
 @click.pass_context
 def list(ctx, path, recursive):
     client = ctx.obj['client']
