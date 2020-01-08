@@ -73,7 +73,10 @@ def test_edit(run_cmd, backend, path, rc, output):
     ],
 )
 def test_list(run_cmd, backend, path, opts, rc, output):
-    result = run_cmd(["list", *opts, f"{backend}/{path}"])
+    cmd = ["list"]
+    cmd.extend(opts)
+    cmd.append(f"{backend}/{path}")
+    result = run_cmd(cmd)
     assert re.match(output, result.output)
     assert result.exit_code == rc
 
@@ -143,6 +146,8 @@ def test_move(run_cmd, backend, src, dest, rc, output):
 )
 def test_nonexistent_mountpoint(run_cmd, command, args):
     path = "nonexistent/secret"
-    result = run_cmd([command, path, *args])
+    cmd = [command, path]
+    cmd.extend(args)
+    result = run_cmd(cmd)
     assert result.exit_code == 1
     assert result.output.endswith("is not under a valid mount point.\n")

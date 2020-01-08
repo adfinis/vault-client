@@ -12,7 +12,11 @@ def load_config():
     path = config_path()
     try:
         with open(path, "r") as f:
-            return {**_DEFAULT_CONFIG, **yaml.load(f, Loader=yaml.FullLoader)}
+            cfg = _DEFAULT_CONFIG.copy()
+            cfg.update(
+                yaml.load(f, Loader=yaml.FullLoader)
+            )
+            return cfg
     except FileNotFoundError:
         question = "Would you like to copy a sample config file to ~/.vaultrc? [y/N]: "
         reply = str(input(question)).lower().strip()
