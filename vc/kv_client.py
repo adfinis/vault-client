@@ -41,11 +41,6 @@ class KvClient:
             # Old secret engines do not use options.
             version = "1"
 
-        if version != "1" and version != "2":
-            import ipdb
-
-            ipdb.set_trace()
-
         yield VaultPath(
             mount_path=match, secret_path=path[len(match) :], kv_version=version
         )
