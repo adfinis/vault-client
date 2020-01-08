@@ -1,3 +1,5 @@
+# coding: future_fstrings
+
 import hvac
 
 from contextlib import contextmanager

@@ -1,3 +1,5 @@
+# coding: future_fstrings
+
 import yaml
 
 from os import getenv

@@ -1,3 +1,5 @@
+# coding: future_fstrings
+
 from vc.cli import cli
 from vc.config import load_config
 from vc.kv_client import KvClient

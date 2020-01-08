@@ -1,3 +1,5 @@
+# coding: future_fstrings
+
 import click
 import hvac
 import yaml
