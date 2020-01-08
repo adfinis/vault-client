@@ -8,8 +8,20 @@ _DEFAULT_CONFIG = {"host": "localhost", "port": 8200, "tls": True, "verify_tls":
 
 def load_config():
     path = config_path()
-    with open(path, "r") as f:
-        return {**_DEFAULT_CONFIG, **yaml.load(f, Loader=yaml.FullLoader)}
+    try:
+        with open(path, "r") as f:
+            return {**_DEFAULT_CONFIG, **yaml.load(f, Loader=yaml.FullLoader)}
+    except FileNotFoundError:
+        question = "Would you like to copy a sample config file to ~/.vaultrc? [y/N]: "
+        reply = str(input(question)).lower().strip()
+        if reply[0] == "y":
+            create_default_config(path)
+        exit(0)
+
+
+def create_default_config(path):
+    with open(path, "w") as f:
+        yaml.dump(_DEFAULT_CONFIG, f)
 
 
 def config_path():
