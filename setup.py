@@ -14,4 +14,5 @@ setup(
         "hvac >= 0.9.6",
         "future-fstrings",
     ],
+    entry_points={"console_scripts": ["vc = vc.__main__:main"]},
 )
