@@ -69,7 +69,13 @@ def cleanup_kv_secret_engines(hvac_client):
 
 @pytest.fixture()
 def config():
-    return load_config()
+    return {
+        "host": "localhost",
+        "port": 8200,
+        "tls": False,
+        "verify_tls": False,
+        "token": "password"
+    }
 
 
 @pytest.fixture()
