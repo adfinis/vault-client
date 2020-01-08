@@ -69,8 +69,9 @@ class KvClient:
 
         if not self.client.is_authenticated():
             raise LoginFailed(resp)
-
-        return resp["auth"]["client_token"]
+        token = resp["auth"]["client_token"]
+        self.set_token(token)
+        return token
 
     def get(self, path):
 
