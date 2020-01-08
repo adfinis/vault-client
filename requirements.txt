@@ -1,6 +1,6 @@
 hvac==0.9.6
 Click==7.0
 PyYAML==5.2
-pytest==5.3.2
+pytest==4.6.9
 pytest-lazy-fixture==0.6.2
 future-fstrings
