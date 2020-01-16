@@ -29,7 +29,7 @@ class KvClient:
         kv_mounts = self._get_kv_mounts()
         match = ""
         for m in kv_mounts.keys():
-            if path.startswith(m) and len(m) > len(match):
+            if path.lstrip("/").startswith(m) and len(m) > len(match):
                 match = m
 
         if not match:
@@ -52,18 +52,23 @@ class KvClient:
     def set_token(self, token):
         self.client.token = token
         if not self.client.is_authenticated():
-            raise LoginFailed(resp)
+            raise LoginFailed()
 
-    def login(self, user, password, mount_point):
+    def login(self, user, password, mount_point, auth_type):
         try:
-            resp = self.client.auth.ldap.login(
-                username=user, password=password, mount_point=mount_point
-            )
+            if auth_type == 'ldap':
+                resp = self.client.auth.ldap.login(
+                    username=user, password=password, mount_point=mount_point
+                )
+            elif auth_type == 'userpass':
+                resp = self.client.auth.userpass.login(
+                    username=user, password=password
+                )
         except hvac.exceptions.InvalidRequest as e:
             raise LoginFailed(e)
 
         if not self.client.is_authenticated():
-            raise LoginFailed(resp)
+            raise LoginFailed()
         token = resp["auth"]["client_token"]
         self.set_token(token)
         return token

@@ -40,6 +40,7 @@ def config_path():
 
 
 def update_config_token(token):
+    token_replaced = False
     path = config_path()
     with open(path, "r") as f:
         config = f.readlines()
@@ -47,9 +48,13 @@ def update_config_token(token):
     updated = []
     for line in config:
         if line.startswith("token:"):
+            token_replaced=True
             updated += f"token: {token}\n"
             continue
         updated += line
+
+    if not token_replaced:
+        updated.append(f'token: {token}\n')
 
     with open(path, "w") as f:
         f.writelines(updated)

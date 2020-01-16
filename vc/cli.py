@@ -21,8 +21,30 @@ def login(ctx, password):
     client = ctx.obj["client"]
     config = ctx.obj["config"]
 
-    token = client.login(config["user"], password, config["auth_mount_path"])
+    auth = config.get("authentication")
+    if not auth:
+        click.echo("Please configure the 'authentication' section in your config file", err=True)
+        exit(1)
 
+    user = auth.get("user")
+    if not user:
+        click.echo("Please specifiy a user with which to authenticate against vault ('user' setting)", err=True)
+        exit(1)
+
+    auth_type = auth.get("type")
+    if not auth_type:
+        click.echo('Please specify the type of the authentication backend', err=True)
+        exit(1)
+
+    if auth_type == 'ldap':
+        auth_path = auth.get("path")
+        if not auth_path:
+            click.echo('Please specify the path to the authentication backend', err=True)
+            exit(1)
+    elif auth_type == 'userpass':
+        auth_path = 'userpass'
+
+    token = client.login(user, password, auth_path, auth_type)
     update_config_token(token)
 
 
@@ -42,14 +64,11 @@ def search(ctx, query):
         click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
         exit(1)
 
-    results = []
-    for path in paths:
-        if query in path:
-            results.append(path)
-
-    if len(results) == 0:
+    results = [path for path in paths if query in path]
+    if not results:
         click.echo("No search results.")
     elif len(results) == 1:
+        path = results[0]
         secret = client.get(path)
         click.echo(f"# {path}")
         click.echo(yaml.dump(secret))
