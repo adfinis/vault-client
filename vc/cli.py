@@ -17,6 +17,7 @@ def cli():
 @click.option("--password", prompt=True, hide_input=True)
 @click.pass_context
 def login(ctx, password):
+    """Authenticate against Vault using your prefered method."""
     client = ctx.obj["client"]
     config = ctx.obj["config"]
 
@@ -29,7 +30,9 @@ def login(ctx, password):
 @click.argument("query")
 @click.pass_context
 def search(ctx, query):
+    """Search for secret paths that contrain the search string"""
     client = ctx.obj["client"]
+
     try:
         paths = client.traverse()
     except hvac.exceptions.InvalidPath:
@@ -59,6 +62,7 @@ def search(ctx, query):
 @click.argument("path")
 @click.pass_context
 def show(ctx, path):
+    """Show an existing secret"""
     client = ctx.obj["client"]
     try:
         secret = client.get(path)
@@ -76,12 +80,14 @@ def show(ctx, path):
 @click.argument("dest")
 @click.pass_context
 def mv(ctx, src, dest):
+    """Move an existing secret to another location"""
     client = ctx.obj["client"]
+
     try:
         secret = client.get(src)
     except hvac.exceptions.InvalidPath:
         click.echo(f'Source path "{src}" does not exist.', err=True)
-        return
+        exit(1)
     except MountNotFound:
         click.echo(f'Source path "{src}" is not under a valid mount point.', err=True)
         exit(1)
@@ -110,13 +116,14 @@ def mv(ctx, src, dest):
 @click.argument("dest")
 @click.pass_context
 def cp(ctx, src, dest):
+    """Copy an existing secret to another location"""
     client = ctx.obj["client"]
+
     try:
         secret = client.get(src)
     except hvac.exceptions.InvalidPath:
         click.echo(f'Source path "{src}" does not exist.', err=True)
         exit(1)
-
     except MountNotFound:
         click.echo(f'Source path "{src}" is not under a valid mount point.', err=True)
         exit(1)
@@ -125,12 +132,10 @@ def cp(ctx, src, dest):
         secret = client.get(dest)
         click.echo("The destination secret already exists.")
         if not click.confirm("Do you want overwrite it?", abort=True):
-            return
-
+            exit(1)
         client.delete(dest)
     except hvac.exceptions.InvalidPath:
         pass
-
     except MountNotFound:
         click.echo(
             f'Destination path "{path}" is not under a valid mount point.', err=True
@@ -145,8 +150,9 @@ def cp(ctx, src, dest):
 @click.argument("path")
 @click.pass_context
 def edit(ctx, path):
+    """Edit a secret at specified path"""
     client = ctx.obj["client"]
-    secret = {}
+
     try:
         secret = client.get(path)
     except hvac.exceptions.InvalidPath:
@@ -171,6 +177,7 @@ def edit(ctx, path):
 @click.argument("data")
 @click.pass_context
 def insert(ctx, path, data):
+    """Insert an new secret"""
     client = ctx.obj["client"]
 
     try:
@@ -194,14 +201,15 @@ def insert(ctx, path, data):
 @click.argument("path", required=False)
 @click.option("-r", "--recursive/--no-recursive", default=False)
 @click.pass_context
-def list(ctx, path, recursive):
+def ls(ctx, path, recursive):
+    """List all secrets at specified path"""
     client = ctx.obj["client"]
+
     try:
         if recursive:
             paths = client.traverse(path)
         else:
             paths = client.list(path)
-
         for p in paths:
             click.echo(p)
     except hvac.exceptions.InvalidPath:
@@ -215,7 +223,8 @@ def list(ctx, path, recursive):
 @cli.command()
 @click.argument("path", required=False)
 @click.pass_context
-def delete(ctx, path):
+def rm(ctx, path):
+    """Remove a secret at specified path"""
     client = ctx.obj["client"]
     try:
         client.get(path)

@@ -34,8 +34,8 @@ def test_show(run_cmd, backend, path, rc, output):
         ("nonexistent", 1, 'Path ".*" does not exist.\n'),
     ],
 )
-def test_delete(run_cmd, backend, path, rc, output):
-    result = run_cmd(["delete", f"{backend}/{path}"])
+def test_rm(run_cmd, backend, path, rc, output):
+    result = run_cmd(["rm", f"{backend}/{path}"])
     assert re.match(output, result.output)
     assert result.exit_code == rc
 
@@ -72,8 +72,8 @@ def test_edit(run_cmd, backend, path, rc, output):
         ),
     ],
 )
-def test_list(run_cmd, backend, path, opts, rc, output):
-    cmd = ["list"]
+def test_ls(run_cmd, backend, path, opts, rc, output):
+    cmd = ["ls"]
     cmd.extend(opts)
     cmd.append(f"{backend}/{path}")
     result = run_cmd(cmd)
@@ -135,9 +135,9 @@ def test_move(run_cmd, backend, src, dest, rc, output):
 @pytest.mark.parametrize(
     "command,args",
     [
-        ("delete", []),
+        ("rm", []),
         ("edit", []),
-        ("list", []),
+        ("ls", []),
         ("show", []),
         ("cp", ["othersecret"]),
         ("mv", ["othersecret"]),
