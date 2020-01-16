@@ -1,6 +1,8 @@
 # coding: future_fstrings
 
-from vc.cli import cli
+from sys import argv
+from vc.cli import cli, login
+from vc.ansi import color
 from vc.config import load_config
 from vc.kv_client import KvClient
 
@@ -15,11 +17,13 @@ else:
 url = f"{protocol}://{config['host']}:{config['port']}"
 client = KvClient(url, config.get("verify_tls"))
 
-try:
-    token = config["token"]
+token = config.get('token')
+if not token:
+    if len(argv) != 1 and argv[1] != 'login':
+        print(f'{color.BOLD}You do not have a token set. Please login first (vc login).{color.END}\n')
+        exit(0)
+else:
     client.set_token(token)
-except KeyError:
-    print('You do not have a token set. Please login first.')
-    exit(1)
 
-cli(obj={"client": client, "config": config})
+ctx = {"client": client, "config": config}
+cli(obj=ctx)
