@@ -217,7 +217,7 @@ def insert(ctx, path, data):
 
 
 @cli.command()
-@click.argument("path", required=False)
+@click.argument("path", required=False, default='/')
 @click.option("-r", "--recursive/--no-recursive", default=False)
 @click.pass_context
 def ls(ctx, path, recursive):
