@@ -89,26 +89,38 @@ class KvClient:
 
             return secret["data"]
 
-    def list(self, path=None):
+    def list(self, path):
 
         if path in ["", "/", None]:
             return self._get_kv_mounts().keys()
 
         with self.vault_path(path) as vpath:
-            if vpath.kv_version == "1":
-                secrets = self.client.secrets.kv.v1.list_secrets(
-                    mount_point=vpath.mount_path, path=vpath.secret_path
-                )
-            elif vpath.kv_version == "2":
-                secrets = self.client.secrets.kv.v2.list_secrets(
-                    mount_point=vpath.mount_path, path=vpath.secret_path
-                )
-            else:
-                raise NotImplementedError
+            try:
+                if vpath.kv_version == "1":
+                    secrets = self.client.secrets.kv.v1.list_secrets(
+                        mount_point=vpath.mount_path, path=vpath.secret_path
+                    )
+                elif vpath.kv_version == "2":
+                    secrets = self.client.secrets.kv.v2.list_secrets(
+                        mount_point=vpath.mount_path, path=vpath.secret_path
+                    )
+                else:
+                    raise NotImplementedError
 
-        return secrets["data"]["keys"]
+                return secrets["data"]["keys"]
 
-    def traverse(self, path=None):
+            except hvac.exceptions.Forbidden:
+                return []
+
+            except hvac.exceptions.InvalidPath as exc:
+                # Listing an empty backend will result in an InvalidPath
+                # exception. I think an empty list is more appropriate.
+                if vpath.secret_path == "/":
+                    return []
+                raise exc
+
+
+    def traverse(self, path):
         paths = []
         childs = self.list(path)
         for child in childs:
