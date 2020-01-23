@@ -17,13 +17,13 @@ else:
 url = f"{protocol}://{config['host']}:{config['port']}"
 client = KvClient(url, config.get("verify_tls"))
 
-token = config.get('token')
-if not token:
-    if len(argv) != 1 and argv[1] != 'login':
+if len(argv) != 1 and argv[1] != 'login':
+    token = config.get('token')
+    if not token:
         print(f'{color.BOLD}You do not have a token set. Please login first (vc login).{color.END}\n')
         exit(0)
-else:
-    client.set_token(token)
+    else:
+        client.set_token(token)
 
 ctx = {"client": client, "config": config}
 cli(obj=ctx)
