@@ -5,7 +5,7 @@ import hvac
 import yaml
 
 from vc.config import update_config_token
-from vc.kv_client import MountNotFound
+from vc.kv_client import MountNotFound, LoginFailed
 
 
 @click.group()
@@ -60,6 +60,10 @@ def login(ctx, password):
             "It appears that your configured authentication backend does not exis",
             err=True,
         )
+        exit(1)
+    except LoginFailed:
+        click.echo("Login failed.", err=True)
+        exit(1)
 
 
 @cli.command()
