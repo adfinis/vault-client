@@ -75,7 +75,7 @@ def config():
         "port": 8200,
         "tls": False,
         "verify_tls": False,
-        "token": "password"
+        "token": "password",
     }
 
 
@@ -101,19 +101,18 @@ def run_cmd(ctx):
 
 @pytest.fixture()
 def userpass_auth_backend(hvac_client):
-    path='vc_userpass'
-    hvac_client.sys.enable_auth_method(method_type='userpass', path=path)
+    path = "vc_userpass"
+    hvac_client.sys.enable_auth_method(method_type="userpass", path=path)
     yield path
     hvac_client.sys.disable_auth_method(path=path)
+
 
 @pytest.fixture()
 def userpass_credentials(hvac_client, userpass_auth_backend):
     path = userpass_auth_backend
-    username = 'user'
-    password = 'password'
+    username = "user"
+    password = "password"
     hvac_client.auth.userpass.create_or_update_user(
-        username=username,
-        password=password,
-        mount_point=path
+        username=username, password=password, mount_point=path
     )
     yield (username, password, path)

@@ -55,11 +55,11 @@ class KvClient:
 
     def login(self, username, password, mount_point, auth_type):
         try:
-            if auth_type == 'ldap':
+            if auth_type == "ldap":
                 resp = self.client.auth.ldap.login(
                     username=username, password=password, mount_point=mount_point
                 )
-            elif auth_type == 'userpass':
+            elif auth_type == "userpass":
                 resp = self.client.auth.userpass.login(
                     username=username, password=password, mount_point=mount_point
                 )
@@ -117,7 +117,6 @@ class KvClient:
                 if vpath.secret_path == "/":
                     return []
                 raise exc
-
 
     def traverse(self, path):
         paths = []

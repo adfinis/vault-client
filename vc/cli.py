@@ -23,32 +23,43 @@ def login(ctx, password):
 
     auth = config.get("authentication")
     if not auth:
-        click.echo("Please configure the 'authentication' section in your config file", err=True)
+        click.echo(
+            "Please configure the 'authentication' section in your config file",
+            err=True,
+        )
         exit(1)
 
     user = auth.get("user")
     if not user:
-        click.echo("Please specifiy a user with which to authenticate against vault ('user' setting)", err=True)
+        click.echo(
+            "Please specifiy a user with which to authenticate against vault ('user' setting)",
+            err=True,
+        )
         exit(1)
 
     auth_type = auth.get("type")
     if not auth_type:
-        click.echo('Please specify the type of the authentication backend', err=True)
+        click.echo("Please specify the type of the authentication backend", err=True)
         exit(1)
 
-    if auth_type == 'ldap':
+    if auth_type == "ldap":
         auth_path = auth.get("path")
         if not auth_path:
-            click.echo('Please specify the path to the authentication backend', err=True)
+            click.echo(
+                "Please specify the path to the authentication backend", err=True
+            )
             exit(1)
-    elif auth_type == 'userpass':
-        auth_path = 'userpass'
+    elif auth_type == "userpass":
+        auth_path = "userpass"
 
     try:
         token = client.login(user, password, auth_path, auth_type)
         update_config_token(token)
     except hvac.exceptions.InvalidPath:
-        click.echo("It appears that your configured authentication backend does not exis", err=True)
+        click.echo(
+            "It appears that your configured authentication backend does not exis",
+            err=True,
+        )
 
 
 @cli.command()
@@ -220,7 +231,7 @@ def insert(ctx, path, data):
 
 
 @cli.command()
-@click.argument("path", required=False, default='/')
+@click.argument("path", required=False, default="/")
 @click.option("-r", "--recursive/--no-recursive", default=False)
 @click.pass_context
 def ls(ctx, path, recursive):

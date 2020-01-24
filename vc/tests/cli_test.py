@@ -156,9 +156,6 @@ def test_nonexistent_mountpoint(run_cmd, command, args):
 def test_userpass_login(userpass_credentials, kv_client):
     username, password, path = userpass_credentials
     token = kv_client.login(
-        username=username,
-        password=password,
-        mount_point=path,
-        auth_type='userpass'
+        username=username, password=password, mount_point=path, auth_type="userpass"
     )
     assert token

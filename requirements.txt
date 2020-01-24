@@ -3,5 +3,6 @@ Click==7.0
 PyYAML==5.2
 pytest==4.6.9
 pytest-isort==0.3.1
+future-fstrings
 pytest-lazy-fixture==0.6.2
 future-fstrings
