@@ -1,9 +1,9 @@
 # coding: future_fstrings
 
-import yaml
-
 from os import getenv
 from os.path import exists, expanduser
+
+import yaml
 
 _DEFAULT_CONFIG = {"host": "localhost", "port": 8200, "tls": True, "verify_tls": True}
 

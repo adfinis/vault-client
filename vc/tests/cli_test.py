@@ -1,8 +1,8 @@
 # coding: future_fstrings
 
-import pytest
 import re
 
+import pytest
 
 # TODO: Test search command
 # TODO: Test login command

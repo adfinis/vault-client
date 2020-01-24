@@ -1,13 +1,14 @@
 # coding: future_fstrings
 
-import pytest
+from functools import partial
+
 import hvac
+import pytest
+from click.testing import CliRunner
 
 from vc.cli import cli
 from vc.config import load_config
 from vc.kv_client import KvClient
-from click.testing import CliRunner
-from functools import partial
 
 
 @pytest.fixture()

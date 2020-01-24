@@ -1,11 +1,11 @@
 # coding: future_fstrings
 
 from sys import argv
-from vc.cli import cli, login
+
 from vc.ansi import color
+from vc.cli import cli, login
 from vc.config import load_config
 from vc.kv_client import KvClient
-
 
 config = load_config()
 

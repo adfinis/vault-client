@@ -1,10 +1,9 @@
 # coding: future_fstrings
 
-import hvac
-
-from contextlib import contextmanager
 from collections import namedtuple
+from contextlib import contextmanager
 
+import hvac
 
 VaultPath = namedtuple("VaultPath", ["mount_path", "secret_path", "kv_version"])
 

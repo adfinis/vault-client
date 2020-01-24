@@ -4,8 +4,8 @@ import click
 import hvac
 import yaml
 
-from vc.kv_client import MountNotFound
 from vc.config import update_config_token
+from vc.kv_client import MountNotFound
 
 
 @click.group()
@@ -44,8 +44,11 @@ def login(ctx, password):
     elif auth_type == 'userpass':
         auth_path = 'userpass'
 
-    token = client.login(user, password, auth_path, auth_type)
-    update_config_token(token)
+    try:
+        token = client.login(user, password, auth_path, auth_type)
+        update_config_token(token)
+    except hvac.exceptions.InvalidPath:
+        click.echo("It appears that your configured authentication backend does not exis", err=True)
 
 
 @cli.command()
