@@ -229,8 +229,9 @@ def insert(ctx, path, data):
 @cli.command()
 @click.argument("path", required=False, default="/")
 @click.option("-r", "--recursive/--no-recursive", default=False)
+@click.option("-a", "--absolute-path", is_flag=True)
 @click.pass_context
-def ls(ctx, path, recursive):
+def ls(ctx, path, recursive, absolute_path):
     """List all secrets at specified path"""
     client = ctx.obj["client"]
 
@@ -240,7 +241,10 @@ def ls(ctx, path, recursive):
         else:
             paths = client.list(path)
         for p in paths:
-            click.echo(p)
+            if absolute_path:
+                click.echo(f"{path}{p}")
+            else:
+                click.echo(p)
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not exist.', err=True)
         exit(1)
