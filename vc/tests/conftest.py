@@ -96,3 +96,23 @@ def ctx(config, kv_client):
 def run_cmd(ctx):
     runner = CliRunner()
     return partial(runner.invoke, cli, obj=ctx)
+
+
+@pytest.fixture()
+def userpass_auth_backend(hvac_client):
+    path='vc_userpass'
+    hvac_client.sys.enable_auth_method(method_type='userpass', path=path)
+    yield path
+    hvac_client.sys.disable_auth_method(path=path)
+
+@pytest.fixture()
+def userpass_credentials(hvac_client, userpass_auth_backend):
+    path = userpass_auth_backend
+    username = 'user'
+    password = 'password'
+    hvac_client.auth.userpass.create_or_update_user(
+        username=username,
+        password=password,
+        mount_point=path
+    )
+    yield (username, password, path)

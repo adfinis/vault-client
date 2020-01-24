@@ -54,15 +54,15 @@ class KvClient:
         if not self.client.is_authenticated():
             raise LoginFailed()
 
-    def login(self, user, password, mount_point, auth_type):
+    def login(self, username, password, mount_point, auth_type):
         try:
             if auth_type == 'ldap':
                 resp = self.client.auth.ldap.login(
-                    username=user, password=password, mount_point=mount_point
+                    username=username, password=password, mount_point=mount_point
                 )
             elif auth_type == 'userpass':
                 resp = self.client.auth.userpass.login(
-                    username=user, password=password
+                    username=username, password=password, mount_point=mount_point
                 )
         except hvac.exceptions.InvalidRequest as e:
             raise LoginFailed(e)

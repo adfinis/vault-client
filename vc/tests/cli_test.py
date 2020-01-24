@@ -151,3 +151,14 @@ def test_nonexistent_mountpoint(run_cmd, command, args):
     result = run_cmd(cmd)
     assert result.exit_code == 1
     assert result.output.endswith("is not under a valid mount point.\n")
+
+
+def test_userpass_login(userpass_credentials, kv_client):
+    username, password, path = userpass_credentials
+    token = kv_client.login(
+        username=username,
+        password=password,
+        mount_point=path,
+        auth_type='userpass'
+    )
+    assert token
