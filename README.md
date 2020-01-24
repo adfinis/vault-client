@@ -1,7 +1,7 @@
 Vault Client
 ============
-[![Travis](https://img.shields.io/travis/winpat/vc.svg?style=flat-square)](https://travis-ci.org/adfinis-sygroup/vault-client)
-[![License](https://img.shields.io/github/license/winpat/vc.svg?style=flat-square)](LICENSE)
+[![Travis](https://img.shields.io/travis/adfinis-sygroup/vault-client.svg?style=flat-square)](https://travis-ci.org/adfinis-sygroup/vault-client)
+[![License](https://img.shields.io/github/license/adfinis-sygroup/vault-client.svg?style=flat-square)](LICENSE)
 
 `vc` is a command-line interface to
 [HashiCorp's Vault](https://www.vaultproject.io/) inspired by
