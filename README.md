@@ -7,45 +7,42 @@ Vault Client
 [HashiCorp's Vault](https://www.vaultproject.io/) inspired by
 [pass](https://www.passwordstore.org/).
 
-* Makes secrets from `generic` backends easy accessible
-* Support for comments through `#` line prefix
+* Makes secrets from `kv` backends easy accessible (`v1` and `v2`)
 * Features auto completion for `bash` and `zsh`
+* Supports `userpass` and `ldap` authentication backends
 
 Demo
 ----
 ![gif](sample/demo.gif)
 
-Installation
-------------
-1. Download the
-[latest release](https://github.com/adfinis-sygroup/vault-client/releases).
-2. Unzip and move `vc` into a directory of choice.
-
-Build Instructions
-------------------
-To build vault-client you need a Go compiler and Git.
-```
-$ apt-get install git go
-$ git clone https://github.com/adfinis-sygroup/vault-client.git
-$ cd vault-client
-$ make build
-```
-`make build` will install Go dependencies and build vault-client. After you
-should have a binary `vc` in your working directory.
 
 Configuration
 -------------
 The configuration happens through a simple yaml file.
 ```
-$ echo "host: HOST (default: 127.0.0.1)
-port: PORT (default: 8200)
-token: PASSWORD
-auth_backend: <ldap|token>
-auth_method: <ldap|token>
-tls: <true|false>
-verify_tls: <true|false>" >  ~/.vaultrc
+$ echo "host: localhost
+port: 8200
+tls: false
+verify_tls: false
+authentication:
+  type: userpass
+  user: someuser" >  ~/.vaultrc
 
 $ chmod 600 ~/.vaultrc
+```
+
+Development
+-----------
+If you would like to hack on `vc` you require:
+- Python >= 3.4
+- Docker and docker-compose
+
+You can then start the Vault container using docker-compose, install all
+required dependencies and run the test suite:
+```
+$ docker-compose up -d
+$ pip install -r requirements.txt
+$ pytest --isort --black --flake8
 ```
 
 Contributions
