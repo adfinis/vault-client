@@ -57,7 +57,7 @@ def login(ctx, password):
         update_config_token(token)
     except hvac.exceptions.InvalidPath:
         click.echo(
-            "It appears that your configured authentication backend does not exis",
+            "It appears that your configured authentication backend does not exist",
             err=True,
         )
         exit(1)
