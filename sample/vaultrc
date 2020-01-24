@@ -1,7 +1,7 @@
 host: localhost
 port: 8200
-token: password
 tls: false
 verify_tls: false
-user: user
-auth_mount_path: ldap
+authentication:
+  type: userpass
+  user: someuser
