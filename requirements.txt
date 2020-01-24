@@ -4,6 +4,6 @@ PyYAML==5.2
 pytest==4.6.9
 pytest-isort==0.3.1
 pytest-flake8==1.0.4
-future-fstrings
+pytest-black==0.3.7
 pytest-lazy-fixture==0.6.2
 future-fstrings
