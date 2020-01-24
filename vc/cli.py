@@ -69,15 +69,7 @@ def search(ctx, query):
     """Search for secret paths that contrain the search string"""
     client = ctx.obj["client"]
 
-    try:
-        paths = client.traverse()
-    except hvac.exceptions.InvalidPath:
-        click.echo(f'Path "{path}" does not exist.', err=True)
-        exit(1)
-    except MountNotFound:
-        click.echo(f'Path "{path}" is not under a valid mount point.', err=True)
-        exit(1)
-
+    paths = client.traverse()
     results = [path for path in paths if query in path]
     if not results:
         click.echo("No search results.")
@@ -136,7 +128,7 @@ def mv(ctx, src, dest):
         pass
 
     except MountNotFound:
-        click.echo(f'Source path "{path}" is not under a valid mount point.', err=True)
+        click.echo(f'Source path "{src}" is not under a valid mount point.', err=True)
         exit(1)
 
     client.put(dest, secret)
@@ -171,7 +163,7 @@ def cp(ctx, src, dest):
         pass
     except MountNotFound:
         click.echo(
-            f'Destination path "{path}" is not under a valid mount point.', err=True
+            f'Destination path "{dest}" is not under a valid mount point.', err=True
         )
         exit(1)
 
@@ -215,12 +207,12 @@ def insert(ctx, path, data):
 
     try:
         key, value = data.split("=")
-    except ValueError as e:
+    except ValueError:
         click.echo(f'Data "{data}" is not a valid key/value pair.', err=True)
         exit(1)
 
     try:
-        secret = client.put(path, {key: value})
+        client.put(path, {key: value})
         click.echo("Secret successfully inserted!")
     except hvac.exceptions.InvalidPath:
         click.echo(f'Path "{path}" does not exist.', err=True)

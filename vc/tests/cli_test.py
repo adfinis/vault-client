@@ -68,7 +68,16 @@ def test_edit(run_cmd, backend, path, rc, output):
             "",
             ["-r"],
             0,
-            "test/v[1,2]/secret0\ntest/v[1,2]/secret[1,2]\ntest/v[1,2]/secret2\ntest/v[1,2]/secret3\ntest/v[1,2]/secretdir/subsecret0\ntest/v[1,2]/secretdir/subsecret[1,2]\ntest/v[1,2]/secretdir/subsecret2\ntest/v[1,2]/secretdir/subsecret3\n",
+            (
+                "test/v[1,2]/secret0\n"
+                "test/v[1,2]/secret[1,2]\n"
+                "test/v[1,2]/secret2\n"
+                "test/v[1,2]/secret3\n"
+                "test/v[1,2]/secretdir/subsecret0\n"
+                "test/v[1,2]/secretdir/subsecret[1,2]\n"
+                "test/v[1,2]/secretdir/subsecret2\n"
+                "test/v[1,2]/secretdir/subsecret3\n"
+            ),
         ),
     ],
 )

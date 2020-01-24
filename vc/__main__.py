@@ -3,7 +3,7 @@
 from sys import argv
 
 from vc.ansi import color
-from vc.cli import cli, login
+from vc.cli import cli
 from vc.config import load_config
 from vc.kv_client import KvClient
 
