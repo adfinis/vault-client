@@ -22,12 +22,12 @@ class KvClient:
 
     def __init__(self, url, verify_tls=True):
         self.client = hvac.Client(url, verify=verify_tls)
+        self.cached_kv_engines = {}
 
     @contextmanager
     def vault_path(self, path):
-        kv_mounts = self._get_kv_mounts()
         match = ""
-        for m in kv_mounts.keys():
+        for m in self.kv_engines.keys():
             if path.lstrip("/").startswith(m) and len(m) > len(match):
                 match = m
 
@@ -35,7 +35,7 @@ class KvClient:
             raise MountNotFound(path)
 
         try:
-            version = kv_mounts[match]["options"]["version"]
+            version = self.kv_engines[match]["options"]["version"]
         except TypeError:
             # Old secret engines do not use options.
             version = "1"
@@ -44,9 +44,14 @@ class KvClient:
             mount_path=match, secret_path=path[len(match) :], kv_version=version
         )
 
-    def _get_kv_mounts(self):
-        mounts = self.client.sys.list_mounted_secrets_engines()["data"]
-        return {k: v for k, v in mounts.items() if v["type"] == "kv"}
+    @property
+    def kv_engines(self):
+        if not self.cached_kv_engines:
+            secret_engines = self.client.sys.list_mounted_secrets_engines()["data"]
+            self.cached_kv_engines = {
+                k: v for k, v in secret_engines.items() if v["type"] == "kv"
+            }
+        return self.cached_kv_engines
 
     def set_token(self, token):
         self.client.token = token
@@ -91,7 +96,7 @@ class KvClient:
     def list(self, path):
 
         if path in ["", "/", None]:
-            return self._get_kv_mounts().keys()
+            return self.kv_engines.keys()
 
         with self.vault_path(path) as vpath:
             try:
