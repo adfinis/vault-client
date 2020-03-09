@@ -1,4 +1,4 @@
-.PHONY: help test build install install-deps
+.PHONY: help test build install
 .DEFAULT_GOAL := help
 
 PKGNAME=vault-client
@@ -26,15 +26,10 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 test:  ## Runs all tests
-	GOPATH=$$(pwd)/vendor go test src/*.go
+	cd src; go test -v
 
-install-deps:  ## Installs go dependencies
-	for dep in $(GO_DEPENDENCIES); do \
-		GOPATH=$$(pwd)/vendor go get -v $$dep; \
-	done
-
-build: install-deps  ## Compiles the program
-	GOPATH=$$(pwd)/vendor go build -o vc src/*.go
+build: ## Compiles the program
+	cd src; go build -o ../vc
 
 install: build  ## Install vault-client
 	$(INSTALL) -Dm755 vc $(DESTDIR)$(bindir)/vc
